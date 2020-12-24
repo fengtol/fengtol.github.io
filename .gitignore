@@ -1,0 +1,13 @@
+Main.7z
+Main.7z.*
+update.7z.*
+update.7z
+count
+config
+log
+data
+.idea
+.vscode
+__pycache__
+requestsData
+pid.txt

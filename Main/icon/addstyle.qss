@@ -1,0 +1,61 @@
+QMenuBar,QListWidget,QTableWidget,QTabWidget,QTabBar,QHeaderView{
+  background: transparent;
+  color: #fff;
+}
+QTabWidget:pane {border-top:0px solid #e8f3f9;background: transparent;}
+QTableView
+{
+  background: transparent;
+  color: #fff;
+ border:0.5px solid #fff;
+}
+QHeaderView::section{background:transparent;color: #fff;border:0.5px solid #fff;}
+QTableCornerButton::section{background:transparent;color: #fff;border:0.5px solid #fff;}
+QTableWidget::item{border:1px solid #fff}
+QTabWidget::tab
+{
+  background: transparent;
+  color: #fff;
+	
+}
+QTabWidget::tab-bar {
+  background: transparent;
+  color: #fff;
+}
+QTabBar::tab
+{
+  background: transparent;
+  color: #fff;
+	
+}
+QTabBar::tab:selected
+{
+  background: transparent;
+  color: #98fb98;
+	
+}
+QStackedWidget
+{
+  background: transparent;
+  color: #fff;
+	
+}
+
+
+
+
+QMainWindow {
+  background-image: url("icon/57.png"); /* 设置背景图片*/
+}
+
+QTabWidget QStackedWidget{   
+    background: transparent;    
+}
+
+
+ 
+
+QStatusBar QLabel {
+  /* Fixes Spyder #9120, #9121 */
+  background: transparent;
+}

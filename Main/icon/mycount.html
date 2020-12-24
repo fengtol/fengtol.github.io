@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>护萌宝Re 船只信息统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="shortcut icon" href="./favicon.ico" />
+	<link rel="bookmark" href="./favicon.ico" />
+	<script src="../count/mycidwu.json"></script>
+	<style>
+		h1 {
+			background-color: blue;
+			border-width: thick;
+		}
+
+		.GreenDiv {
+			background-color: Green;
+		}
+
+		/** 更改每行的颜色**/
+
+		/**table.tr{background-color:blue;}**/
+
+		table tr:nth-child(odd) {
+			background: #ccc;
+		}
+
+		/*修改表格的样式*/
+
+		table {
+			width: 90%;
+			background: #ccc;
+			margin: 10px;
+			border-collapse: collapse;
+		}
+
+		/**th,td{height: 25px;line-height: 25px;text-align: center;border: 1px solid #ccc;}**/
+
+		th,
+		td {
+			height: 25px;
+			line-height: 25px;
+			text-align: center;
+			border: 1px solid #ccc;
+		}
+
+		th {
+			background: #eee;
+			font-weight: normal;
+		}
+
+		tr {
+			background: #fff;
+		}
+
+		tr:hover {
+			background: #cc0;
+		}
+
+		td a {
+			color: #06f;
+			text-decoration: none;
+		}
+
+		td a:hove {
+			color: #06f;
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body style=" height: 100%;">
+	<div>
+		<p>选择<span style="color:greenyellow;">[\count\日期allship.json]</span> 文件查看当天掉落 (点击[时间][名称][位置][评价] 可排序)[如果没头像需要在[建造-泡澡-官方头像]勾选上等待下载完成]
+			<span id="countd" style="color: orange;padding-left: 10px;"></span>
+		</p>
+
+	</div>
+	<div style="padding: 0 20px;">
+
+		<input id="upload-input" type="file" accept="application/json" />
+		<label>名称</label>
+		<input type="text" title="名称" id="max" name="max" />
+		<button type="button" onclick="ok()">搜索</button>
+		<a href="index.html">统计</a>
+		<a href="mycount.html">出货统计</a>
+		<a href="myship.html">船只</a>
+		<a href="mytactics.html">战术统计</a>
+		<a href="version.html">更新日志</a>
+	</div>
+	<div style="min-width:100%; height: 75%;">
+		<table id="tab">
+			<thead>
+				<tr>
+					<th title="time" onclick="sort('time','asc')">时间</th>
+					<th title="cid" onclick="sort('cid','asc')">名称</th>
+					<th title="star">星级</th>
+					<th title="path" onclick="sort('path','asc')">位置</th>
+					<th title="access" onclick="sort('access','asc')">评价</th>
+				</tr>
+			</thead>
+			<tbody id="jsList">
+				<tr>
+					<td>02/04 08:46:56</td>
+					<td>测试</td>
+					<td>⭐⭐⭐⭐</td>
+					<td>8-2A</td>
+					<td>S</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+
+	<script>
+		asclist = {
+			"time": 0,
+			"cid": 1,
+			"star": 2,
+			"path": 3,
+			"access": 4,
+
+		}
+		Date.prototype.format = function (fmt) {
+			var o = {
+				"M+": this.getMonth() + 1, //月份
+				"d+": this.getDate(), //日
+				"h+": this.getHours(), //小时
+				"m+": this.getMinutes(), //分
+				"s+": this.getSeconds(), //秒
+				"q+": Math.floor((this.getMonth() + 3) / 3), //季度
+				"S": this.getMilliseconds() //毫秒
+			};
+			if (/(y+)/.test(fmt)) {
+				fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+			}
+			for (var k in o) {
+				if (new RegExp("(" + k + ")").test(fmt)) {
+					fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+				}
+			}
+			return fmt;
+		}
+		stars = {
+			1: "⭐",
+			2: "⭐⭐",
+			3: "⭐⭐⭐",
+			4: "⭐⭐⭐⭐",
+			5: "⭐⭐⭐⭐⭐",
+			6: "⭐⭐⭐⭐⭐⭐",
+		}
+		countlist = []
+		var form = document.getElementById("upload-input");
+		var hl = "input";
+		if (navigator.appName == "Microsoft Internet Explorer" && navigator.appVersion.match(/8./i) == "8.") { //IE 8.0
+			hl = "propertychange";
+		}
+		addEvent(form, hl, function (e) {
+			console.log(e);
+			fileImport()
+		})
+
+		function addEvent(el, type, handle) {
+			try {  // Chrome、FireFox、Opera、Safari、IE9.0及其以上版本
+				el.addEventListener(type, handle, false);
+			} catch (e) {
+				try {  // IE8.0及其以下版本
+					el.attachEvent('on' + type, handle);
+				} catch (e) {  // 早期浏览器
+					el['on' + type] = handle;
+				}
+			}
+		}
+		function fileImport() {
+			//获取读取我文件的File对象
+			var selectedFile = document.getElementById('upload-input').files[0];
+			var name = selectedFile.name;//读取选中文件的文件名
+			var size = selectedFile.size;//读取选中文件的大小
+			console.log("文件名:" + name + "大小:" + size);
+
+			var reader = new FileReader();//这是核心,读取操作就是由它完成.
+			reader.readAsText(selectedFile);//读取文件的内容,也可以读取文件的URL
+			reader.onload = function () {
+				//当读取完成后回调这个函数,然后此时文件的内容存储到了result中,直接操作即可
+				temps = "[" + this.result.replace(/}/g, "},").replace(/\n|\r/g, "") + "]"
+				temps = temps.replace(",\]", "]")
+				countlist = JSON.parse(temps)
+				//console.log(countlist);
+				inserttable()
+			}
+		}
+		function inserttable() {
+			tjs = document.getElementById("jsList").innerHTML = ""
+
+
+			count = 0
+			for (var key in countlist) {
+				kk = countlist[key]
+
+				ship = mycidwu[0][kk["cid"]]
+				timef = kk["time"].replace(/-/g, "/").substring(19, 0)
+				timef = new Date(timef).format("MM/dd hh:mm:ss")
+				valu = document.getElementById("max").value
+				if (ship["title"].indexOf(valu) == -1) {
+					continue
+				}
+				addRow(timef, "<div title='" + ship["desc"] + "' style='width:150px;display: inline-block;vertical-align: middle;line-height: 63px;'>" + ship["title"] + "</div>" + "<img style='vertical-align: middle; width: 94px;height: 63px;' src='../hot/model/S_NORMAL_" + ship["picId"] + ".png' />", stars[ship["star"]], kk["path"], kk["access"])
+				count++
+
+			}
+			document.getElementById("countd").innerHTML = "  数量:" + count
+
+		}
+		tb = document.getElementById("jsList")
+		function addRow(col1, col2, col3, col4, col5) {
+			var row = tb.insertRow(tb.FetchRowCount);
+			row.insertCell(0).innerHTML = col1;
+			row.insertCell(1).innerHTML = col2;
+			row.insertCell(2).innerHTML = col3;
+			row.insertCell(3).innerHTML = col4;
+			row.insertCell(4).innerHTML = col5;
+		}
+		function sort(type, order) {
+
+			countlist.sort(function (a, b) {
+				switch (type) {
+					case "cid":
+						if (typeof a.cid == "string") {
+							return a.cid.localeCompare(b.cid);
+						}
+						else {
+							return a.cid - b.cid;
+						}
+
+
+					case "access":
+						if (typeof a.access == "string") {
+							return a.access.localeCompare(b.access);
+						}
+						else {
+							return a.access - b.access;
+						}
+
+					case "path":
+						if (typeof a.path == "string") {
+							return a.path.localeCompare(b.path);
+						}
+						else {
+							return a.path - b.path;
+						}
+
+					case "time":
+						if (typeof a.time == "string") {
+							return a.time.localeCompare(b.time);
+						}
+						else {
+							return a.time - b.time;
+						}
+
+					default:
+						break;
+				}
+
+			});
+			inserttable()
+
+
+		}
+		function ok() {
+			inserttable()
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,4 @@
+G:\fengzhiwenisgod.github.io\Main\Main.exe
+G:\fengzhiwenisgod.github.io\Main\base_library.zip
+G:\fengzhiwenisgod.github.io\Main\host.ini
+G:\fengzhiwenisgod.github.io\Main\Upgrade.exe

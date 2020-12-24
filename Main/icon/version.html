@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>护萌宝·RE</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="shortcut icon" href="./favicon.ico" />
+	<link rel="bookmark" href="./favicon.ico" />
+	<style>
+		#con{
+			padding:20px;
+			box-shadow: 0 2px 10px 0 rgba(0,0,0,.1);
+		}
+	</style>
+</head>
+
+<body>
+	<div style="padding: 0 20px;">
+		<a href="index.html">统计</a>
+		<a href="mycount.html">出货统计</a>
+		<a href="myship.html">船只</a>
+		<a href="mytactics.html">战术统计</a>
+		<a href="version.html">更新日志</a>
+	</div>
+	<div   id="con">
+
+	</div>
+	<script>
+		// 常用工具函数
+		var tools = {
+
+			formatParams: function (obj) {
+
+				return Object.keys(obj).map(function (item) {
+
+					return item + '=' + obj[item];
+
+				}).join('&');
+
+			},
+			/* ajax请求get
+			* @param url     string   请求的路径
+			* @param query   object   请求的参数query
+			* @param succCb  function 请求成功之后的回调
+			* @param failCb  function 请求失败的回调
+			* @param isJson  boolean  true： 解析json  false：文本请求  默认值true
+			*/
+			ajaxGet: function (url, query, succCb, failCb, isJson) {
+				// 拼接url加query
+				if (query) {
+					var parms = tools.formatParams(query);
+					url += '?' + parms;
+					// console.log('-------------',url);
+				}
+
+				// 1、创建对象
+				var ajax = new XMLHttpRequest();
+				// 2、建立连接
+				// true:请求为异步  false:同步
+				ajax.open("GET", url, true);
+				// ajax.setRequestHeader("Origin",STATIC_PATH); 
+
+				// ajax.setRequestHeader("Access-Control-Allow-Origin","*");   
+				// // 响应类型    
+				// ajax.setRequestHeader('Access-Control-Allow-Methods', '*');    
+				// // 响应头设置    
+				// ajax.setRequestHeader('Access-Control-Allow-Headers', 'x-requested-with,content-type');  
+				// ajax.withCredentials = true;
+				// 3、发送请求
+				ajax.send(null);
+
+				// 4、监听状态的改变
+				ajax.onreadystatechange = function () {
+					if (ajax.readyState === 4) {
+						if (ajax.status === 200) {
+							// 用户传了回调才执行
+							// isJson默认值为true，要解析json
+							if (isJson === undefined) {
+								isJson = true;
+							}
+							var res = isJson ? JSON.parse(ajax.responseText == "" ? '{}' : ajax.responseText) : ajax.responseText;
+							succCb && succCb(res);
+						} else {
+							// 请求失败
+							failCb && failCb();
+						}
+
+					}
+				}
+
+
+			},
+
+
+			/* ajax请求post
+			* @param url     string   请求的路径
+			* @param data   object   请求的参数query  
+			* @param succCb  function 请求成功之后的回调
+			* @param failCb  function 请求失败的回调
+			* @param isJson  boolean  true： 解析json  false：文本请求  默认值true
+			*/
+			ajaxPost: function (url, data, succCb, failCb, isJson) {
+
+				var formData = new FormData();
+				for (var i in data) {
+					formData.append(i, data[i]);
+				}
+				//得到xhr对象
+				var xhr = null;
+				if (XMLHttpRequest) {
+					xhr = new XMLHttpRequest();
+				} else {
+					xhr = new ActiveXObject("Microsoft.XMLHTTP");
+
+				}
+
+				xhr.open("post", url, true);
+				// 设置请求头  需在open后send前
+				// 这里的CSRF需自己取后端获取，下面给出获取代码
+				xhr.setRequestHeader("X-CSRFToken", CSRF);
+
+				xhr.send(formData);
+
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState === 4) {
+						if (xhr.status === 200) {
+							// 判断isJson是否传进来了
+							isJson = isJson === undefined ? true : isJson;
+							succCb && succCb(isJson ? JSON.parse(xhr.responseText) : xhr.responseText);
+						}
+					}
+				}
+
+			},
+
+		}
+
+
+
+		// 调用
+		// 接口地址
+		let url = "https://fengzhiwenisgod.github.io/version.json"
+		// 传输数据 为object
+		let data = {}
+
+		tools.ajaxGet(url, data, function (res) {
+			htv='<div>'
+			htv+='<a href="'+res["url"] +'">下载地址</a>    '
+			htv+='<a href="https://docs.qq.com/doc/DZE9Od2RSa2p6a09p">说明书</a>'
+			hisdiv = Object.keys(res["history"])
+			hisdiv.reverse()
+			hisdiv.forEach(element => {
+				htv+='<div style="padding: 0 20px; '+ (element>=0.8?"color:green":"") +'">'+element+': '+res["history"][element]+'</div>'
+			});
+			htv+='</div>'
+			document.getElementById("con").innerHTML = htv
+
+		})
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,2 @@
+requests==2.22.0
+lanzou-api==2.5.7.1

@@ -1,0 +1,409 @@
+{
+  "assets": {
+    "./Main.exe": {
+      "md5": "0a085f7bcf717ac5cfa8ef1670547421"
+    },
+    "./Main.exe.manifest": {
+      "md5": "3b174b174d9629bfdafdfdd0ad18ca16"
+    },
+    "./PyQt5/Qt/plugins/iconengines/qsvgicon.dll": {
+      "md5": "d0e684ea893c43cd80494ee2d58d13ea"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qgif.dll": {
+      "md5": "1322b1300d878d52c2ed5d26512da6ff"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qicns.dll": {
+      "md5": "3f46ae9c2d18b24350e700540376ae5e"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qico.dll": {
+      "md5": "27d26460d8113df45ebbfe7acabd274c"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qjpeg.dll": {
+      "md5": "a0db1434e661845df95d6bf8eba8b688"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qsvg.dll": {
+      "md5": "ce2285af34fcb58f2f4c9952f84289e4"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qtga.dll": {
+      "md5": "92f4c9b6385da781671575ad18e69177"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qtiff.dll": {
+      "md5": "712131218c4130203919061031ce47b0"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qwbmp.dll": {
+      "md5": "954fa4e5facce19a576b2d965433e1ec"
+    },
+    "./PyQt5/Qt/plugins/imageformats/qwebp.dll": {
+      "md5": "65ed317478dbfce82afb47cc7df7085f"
+    },
+    "./PyQt5/Qt/plugins/platforms/qminimal.dll": {
+      "md5": "34c85601dfea87f8eeb6e504e1418dee"
+    },
+    "./PyQt5/Qt/plugins/platforms/qoffscreen.dll": {
+      "md5": "7c475b478228c61b0c0f8cd46f5795d7"
+    },
+    "./PyQt5/Qt/plugins/platforms/qwebgl.dll": {
+      "md5": "1f83b07976f7fec32b6ac79d87449bdf"
+    },
+    "./PyQt5/Qt/plugins/platforms/qwindows.dll": {
+      "md5": "8cd308f2521c10fa967fc089d5c26ce2"
+    },
+    "./PyQt5/Qt/plugins/platformthemes/qxdgdesktopportal.dll": {
+      "md5": "e7942e6c3552d4b61789806422349d4b"
+    },
+    "./PyQt5/Qt/plugins/styles/qwindowsvistastyle.dll": {
+      "md5": "93393f3d1119eb9a5476bdfb8c3943ed"
+    },
+    "./PyQt5/QtCore.pyd": {
+      "md5": "7fdc80d26b9b8aad28617b9e6a53b8e4"
+    },
+    "./PyQt5/QtGui.pyd": {
+      "md5": "89724f5a04f898ffb04c3a05217e8aa1"
+    },
+    "./PyQt5/QtWidgets.pyd": {
+      "md5": "1feb8fa32e2356159fb68790109d8f5e"
+    },
+    "./PyQt5/sip.cp37-win32.pyd": {
+      "md5": "51c15eefb4f7bf5916c0c357bd3d560c"
+    },
+    "./VCRUNTIME140.dll": {
+      "md5": "aeab74db6bc6c914997f1a8a9ff013ec"
+    },
+    "./base_library.zip": {
+      "md5": "5f541220f0187b2660a0987184da9956"
+    },
+    "./certifi/cacert.pem": {
+      "md5": "1ba3b44f73a6b25711063ea5232f4883"
+    },
+    "./host.ini": {
+      "md5": "1296922ef5f7e3e2637cdd04379fc24f"
+    },
+    "./icon/Chart.min.js": {
+      "md5": "7cee7114927c78652b9ac5288a794687"
+    },
+    "./icon/add.png": {
+      "md5": "e0da9845584a01188e620cf3bca309c0"
+    },
+    "./icon/addstyle.qss": {
+      "md5": "7006d4641738f039f3e8e67412a164e2"
+    },
+    "./icon/aluminium.png": {
+      "md5": "b59a06f74387d4371941be5d0539ff4c"
+    },
+    "./icon/ammo.png": {
+      "md5": "b277f04e44339444311450b614001339"
+    },
+    "./icon/arrow_down.png": {
+      "md5": "23093a7397c1265fa28ff8a5f9279c75"
+    },
+    "./icon/arrow_down_disabled.png": {
+      "md5": "72eb6698643960cfb54edc8297ae4b1a"
+    },
+    "./icon/arrow_left.png": {
+      "md5": "568483a0687a28661ce61bd37f9f015b"
+    },
+    "./icon/arrow_left_disabled.png": {
+      "md5": "6e924fafc6c7d0c067c8f559dff24776"
+    },
+    "./icon/arrow_right.png": {
+      "md5": "4b97d9a45f398aa2e31cd0624df4d660"
+    },
+    "./icon/arrow_right_disabled.png": {
+      "md5": "a19fe4571628e4dfca13521d9e8eb9a2"
+    },
+    "./icon/arrow_up.png": {
+      "md5": "a22b64a2a20d5ef426e285922bba5da6"
+    },
+    "./icon/arrow_up_disabled.png": {
+      "md5": "a13ef7e69a02617096b34c7e8473d563"
+    },
+    "./icon/boat.png": {
+      "md5": "b5f7612a197ea53af3dbd208e8c4a66a"
+    },
+    "./icon/change.png": {
+      "md5": "78d8a246ecf6fca862ec93974c1f6ebc"
+    },
+    "./icon/del.png": {
+      "md5": "d1cf6447026a5f7a6aebf024326e6a6e"
+    },
+    "./icon/down.png": {
+      "md5": "7fc6d666514d05f2039444e8f4ed8bde"
+    },
+    "./icon/expedition.png": {
+      "md5": "5b0d06d9a56f6337e79a0800c38e53f5"
+    },
+    "./icon/favicon.ico": {
+      "md5": "1873476ed3f2a5330b7c106fa9632457"
+    },
+    "./icon/fight.png": {
+      "md5": "a384cb6ab53fdf4a6aff5d4da590d42f"
+    },
+    "./icon/friend.png": {
+      "md5": "fc892bcf283b109a845677d155d2b1b2"
+    },
+    "./icon/gold.png": {
+      "md5": "e51d0f5b857fa15e9fc730779c269fd1"
+    },
+    "./icon/icon.png": {
+      "md5": "cae208129d1b33563d2067ca582c994b"
+    },
+    "./icon/index.html": {
+      "md5": "d899d3503a04d0426800399d6058de93"
+    },
+    "./icon/jz.png": {
+      "md5": "048488f4d6e2d523f0f241ac5aaabbc6"
+    },
+    "./icon/left.png": {
+      "md5": "dbfacf23e20380afbbbf64fe05a497c4"
+    },
+    "./icon/lock.png": {
+      "md5": "f35a8ee7f2229073240fe18d26722773"
+    },
+    "./icon/login.png": {
+      "md5": "694881520fad78d83a52feae9ef42f9f"
+    },
+    "./icon/mine.png": {
+      "md5": "ab961e1359fb1b3b201f5ff248f812c6"
+    },
+    "./icon/mycount.html": {
+      "md5": "a3b8b5a9ebded2e19d0399b6ff2496b6"
+    },
+    "./icon/myship.html": {
+      "md5": "b895f4efb02540968ace39ccda455808"
+    },
+    "./icon/mytactics.html": {
+      "md5": "5f0e312af57298fadfe89c55dc0a21ca"
+    },
+    "./icon/oil.png": {
+      "md5": "86ac77c488536f85e287e07993d7b484"
+    },
+    "./icon/p141.png": {
+      "md5": "6328b9b41682b5402f202984c2b8c748"
+    },
+    "./icon/p241.png": {
+      "md5": "a1764b6199fbd25d1d19d515a7b9288b"
+    },
+    "./icon/p541.png": {
+      "md5": "53a4f1496294f5418962161c7383937d"
+    },
+    "./icon/p741.png": {
+      "md5": "3a27b11170d53a1fe9ba6f0d1fcca427"
+    },
+    "./icon/pc.png": {
+      "md5": "b88da61b129ea976236259a6a0375911"
+    },
+    "./icon/repair.png": {
+      "md5": "c10d766789499b951022f88e58732164"
+    },
+    "./icon/right.png": {
+      "md5": "60076946e2edeac38a1e74e3a5242732"
+    },
+    "./icon/server.png": {
+      "md5": "37820c9e36f0746f3cd4f7245d3b995c"
+    },
+    "./icon/set.png": {
+      "md5": "af09032b93eab944a8d9b01f0fd5d016"
+    },
+    "./icon/ship.png": {
+      "md5": "510757b3203637b8130453b5fcff21bf"
+    },
+    "./icon/ship_map.png": {
+      "md5": "e88bd7b16b558eada834ab4459f8e0ba"
+    },
+    "./icon/steel.png": {
+      "md5": "797982f81dae4eb29cacaf5aba3eed58"
+    },
+    "./icon/style.qss": {
+      "md5": "28a56149e014e0458bc1dcb4b46f50b9"
+    },
+    "./icon/up.png": {
+      "md5": "e6e51a3b151b87030b616bb9e2698c4b"
+    },
+    "./icon/utils.js": {
+      "md5": "fb449ec813f6b3e5db7a5bd4ce043764"
+    },
+    "./icon/version.html": {
+      "md5": "23484146b78f3f9ea46b63616c4f5c47"
+    },
+    "./icon/xy.png": {
+      "md5": "1eb5a64b7dd6578c34a4ab1c5b9e2310"
+    },
+    "./icon/yx.png": {
+      "md5": "7d614585a45dbc187ac4ba7e8eb61c54"
+    },
+    "./icon/zl.png": {
+      "md5": "fe51b004cf8af51ad11680b36a390b19"
+    },
+    "./icon/zt.png": {
+      "md5": "b3b95ac901af6d11f8df8d55eb41c017"
+    },
+    "./lib/MSVCP140.dll": {
+      "md5": "142bb4067ca3a325f02361db404e945f"
+    },
+    "./lib/Qt5Core.dll": {
+      "md5": "92b8b4426a9b736d7c96ca7da56d9ee3"
+    },
+    "./lib/Qt5DBus.dll": {
+      "md5": "6a1cf0a1415549ecd23c737037a33d2b"
+    },
+    "./lib/Qt5Gui.dll": {
+      "md5": "c0c744173d3d9fb437984193bcbf172a"
+    },
+    "./lib/Qt5Network.dll": {
+      "md5": "5a0ee855ef5d4cdc12033773ed864604"
+    },
+    "./lib/Qt5Qml.dll": {
+      "md5": "1a66a034ff183a226f79a79f82514c58"
+    },
+    "./lib/Qt5Quick.dll": {
+      "md5": "fc5fdbb60d97094f74f8988fe4612b0f"
+    },
+    "./lib/Qt5Svg.dll": {
+      "md5": "2ac199f3468803d0fa50f05e1971229d"
+    },
+    "./lib/Qt5WebSockets.dll": {
+      "md5": "58a85731be6bc8ed0a93932eb9951379"
+    },
+    "./lib/Qt5Widgets.dll": {
+      "md5": "b2b002c566edabcc6be3ee449699e707"
+    },
+    "./lib/_bz2.pyd": {
+      "md5": "1c52ba084a3723940c0778ab5186893a"
+    },
+    "./lib/_ctypes.pyd": {
+      "md5": "10861d3fa19d7dc3b41eb6f837340782"
+    },
+    "./lib/_elementtree.pyd": {
+      "md5": "390552274c5f71c7ebd1f343bb74446c"
+    },
+    "./lib/_hashlib.pyd": {
+      "md5": "4f51ed287bbae386090a9bcc3531b2b8"
+    },
+    "./lib/_lzma.pyd": {
+      "md5": "f91a9f1f2efee2f5dbae42ea5d5d7153"
+    },
+    "./lib/_queue.pyd": {
+      "md5": "234f63ae981f5a8e87dbabda8ceea32a"
+    },
+    "./lib/_socket.pyd": {
+      "md5": "b3af79bbfd7d5c5285660819792a3a9c"
+    },
+    "./lib/_ssl.pyd": {
+      "md5": "2825bae93cd459d835b74892c9bd80db"
+    },
+    "./lib/d3dcompiler_47.dll": {
+      "md5": "c5b362bce86bb0ad3149c4540201331d"
+    },
+    "./lib/libcrypto-1_1.dll": {
+      "md5": "aad424a6a0ae6d6e7d4c50a1d96a17fc"
+    },
+    "./lib/libssl-1_1.dll": {
+      "md5": "697766aba55f44bbd896cbd091a72b55"
+    },
+    "./lib/mukaRCrypto.dll": {
+      "md5": "a9ca54f50303ce42467713a94a739c73"
+    },
+    "./lib/pyexpat.pyd": {
+      "md5": "187cdd3e6152d56986bb523c3a0f7d3e"
+    },
+    "./lib/python3.dll": {
+      "md5": "167ebefcf1a2cb0ce7f4118fe826f58b"
+    },
+    "./lib/pywintypes37.dll": {
+      "md5": "569a9fc4b54b59c8667891ac77e79a29"
+    },
+    "./lib/select.pyd": {
+      "md5": "d3bf89184b94a4120f4f19f5bcd128d6"
+    },
+    "./lib/unicodedata.pyd": {
+      "md5": "22ee48112415ee74c80b66cc1a8e1ca8"
+    },
+    "./lib/win32api.pyd": {
+      "md5": "8aefb1df456d399636c3c20c8b3f5e0c"
+    },
+    "./lib/win32gui.pyd": {
+      "md5": "919130c5979dca3b3e333a28ca9f351b"
+    },
+    "./path/2-1\u635e\u80d6\u6b21.json": {
+      "md5": "b22fee2eedfd6ac5af25e752999a13a7"
+    },
+    "./path/2-2\u5077\u6cb9.json": {
+      "md5": "9263ac438c9a5d6c7fed94493de7867b"
+    },
+    "./path/3-1\u5077\u5f39.json": {
+      "md5": "377edeb551f30168fb54277163e9cec3"
+    },
+    "./path/4-3\u5077\u94dd.json": {
+      "md5": "203bc34cc6be8efd492c924d069c05a2"
+    },
+    "./path/6-1\u53ea\u62535ss.json": {
+      "md5": "c2b6e7007adb5417733e096403111417"
+    },
+    "./path/7-2\u65e0\u53cd\u6f5c.json": {
+      "md5": "e22f7b6bcc2cfeddf7404c98569b7d2e"
+    },
+    "./path/7-2\u6709\u53cd\u6f5c.json": {
+      "md5": "eaa31c3e21439a31afecb28797d3e03f"
+    },
+    "./path/8-1\u4e0d\u6253\u91cd\u5de1.json": {
+      "md5": "cb4cb0665460467d2b8c5d39cb6d4cfb"
+    },
+    "./path/8-1\u6253\u635eL.json": {
+      "md5": "90ce5c6c0c92caf55435c4ae979b171b"
+    },
+    "./path/8-1\u9ad8\u901f\u70b85\u9c7c.json": {
+      "md5": "96ea8fa5a9f97394fb611b46d9fd2eca"
+    },
+    "./path/8-2 \u5168\u56fe\u8def\u5f84.json": {
+      "md5": "70d73a83f990336f1b2231f603e49d00"
+    },
+    "./path/8-2A\u4e0d\u6253CA.json": {
+      "md5": "be25526f451aff4359a338c87bbebc77"
+    },
+    "./path/8-2a\u53ea\u62535ss.json": {
+      "md5": "31c49be25ba627a790f06f6d63b9cabc"
+    },
+    "./path/8-2b.json": {
+      "md5": "2306cbea64a97d60cfa4a21cfe38bbeb"
+    },
+    "./path/\u5468\u5e381-1.json": {
+      "md5": "aa0f7f4cbc6eb52b39304bf26d50d1cc"
+    },
+    "./path/\u5468\u5e382-2.json": {
+      "md5": "2209d24943f444fe9ece3fd8a1216d74"
+    },
+    "./path/\u5468\u5e383-2.json": {
+      "md5": "aba79f453da33b086fd37188c05ccd07"
+    },
+    "./path/\u5468\u5e384-1.json": {
+      "md5": "236c2886cb49b2515bdb1d60c6217829"
+    },
+    "./path/\u5468\u5e385-5.json": {
+      "md5": "709b18ec8df10068fc9fc16ba8948bb0"
+    },
+    "./path/\u5468\u5e386-3.json": {
+      "md5": "e12ec5c7fb4a00d571aa291bb868d079"
+    },
+    "./path/\u5468\u5e387-4.json": {
+      "md5": "23904d1fda0f2a98f4033330bfd26ee8"
+    },
+    "./path/\u635e2-5\u4e0a\u8def.json": {
+      "md5": "6828b5c5e7b7102b25895cb59bcec531"
+    },
+    "./path/\u635e2-5\u4e2d.json": {
+      "md5": "0d6823a865e2c6d5bfc8a4ef93d3b05e"
+    },
+    "./path/\u7ec3\u822a\u6bcd.json": {
+      "md5": "d8faa939d6751210c7513dab4289eccc"
+    },
+    "./psutil/_psutil_windows.cp37-win32.pyd": {
+      "md5": "5dc63ba5a2a1e51e164aedfb3e8cee97"
+    },
+    "./python37.dll": {
+      "md5": "465089eaced8159ec533e4a37033e227"
+    },
+    "./\u70b9\u51fb\u542f\u52a8.bat": {
+      "md5": "ca6849230d1ab1862faca5c1d901454c"
+    }
+  }
+}

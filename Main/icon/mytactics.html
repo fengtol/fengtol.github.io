@@ -1,0 +1,276 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>护萌宝Re 战术信息统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="shortcut icon" href="./favicon.ico" />
+	<link rel="bookmark" href="./favicon.ico" />
+	<script src="../count/myships.json"></script>
+	<script src="../count/myShipTactics.json"></script>
+	<script src="../count/myTactics.json"></script>
+	<style>
+		h1 {
+			background-color: blue;
+			border-width: thick;
+		}
+
+		.GreenDiv {
+			background-color: Green;
+		}
+
+		/** 更改每行的颜色**/
+
+		/**table.tr{background-color:blue;}**/
+
+		table tr:nth-child(odd) {
+			background: #ccc;
+		}
+
+		/*修改表格的样式*/
+
+		table {
+			width: 90%;
+			background: #ccc;
+			margin: 10px;
+			border-collapse: collapse;
+		}
+
+		/**th,td{height: 25px;line-height: 25px;text-align: center;border: 1px solid #ccc;}**/
+
+		th,
+		td {
+			height: 25px;
+			line-height: 25px;
+			text-align: center;
+			border: 1px solid #ccc;
+		}
+
+		th {
+			background: #eee;
+			font-weight: normal;
+		}
+
+		tr {
+			background: #fff;
+		}
+
+		tr:hover {
+			background: #cc0;
+		}
+
+		td a {
+			color: #06f;
+			text-decoration: none;
+		}
+
+		td a:hove {
+			color: #06f;
+			text-decoration: underline;
+		}
+ 
+	</style>
+</head>
+
+<body style=" height: 100%;">
+
+	<div style="min-width:100%; height: 75%;">
+		<table id="tab">
+			<thead>
+				<tr>
+					<th title="name" onclick="sort('name','asc')">船名</th>
+					<th title="tactics" onclick="sort('tactics','asc')">战术类型/战术/战术等级</th>
+					<th title="lv" onclick="sort('lv','asc')">等级</th>
+				</tr>
+			</thead>
+			<tbody id="jsList">
+				<tr>
+					<td> 未知</td>
+					<td>未知</td>
+					<td>未知</td>
+
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div style="padding: 0 20px;">
+
+		<label>名称</label>
+		<input type="text" title="名称" id="max" name="max" />
+		<button type="button" onclick="ok()">搜索</button>
+		<a href="index.html">统计</a>
+		<a href="mycount.html">出货统计</a>
+		<a href="myship.html">船只</a>
+		<a href="mytactics.html">战术统计</a>
+		<a href="version.html">更新日志</a>
+	</div>
+
+	<script>
+		tb = document.getElementById("jsList")
+		asclist = {
+			"name": 0,
+			"tactics": 1,
+			"lv": 2,
+
+		}
+		Date.prototype.format = function (fmt) {
+			var o = {
+				"M+": this.getMonth() + 1, //月份
+				"d+": this.getDate(), //日
+				"h+": this.getHours(), //小时
+				"m+": this.getMinutes(), //分
+				"s+": this.getSeconds(), //秒
+				"q+": Math.floor((this.getMonth() + 3) / 3), //季度
+				"S": this.getMilliseconds() //毫秒
+			};
+			if (/(y+)/.test(fmt)) {
+				fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+			}
+			for (var k in o) {
+				if (new RegExp("(" + k + ")").test(fmt)) {
+					fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+				}
+			}
+			return fmt;
+		}
+		stars = {
+			1: "⭐",
+			2: "⭐⭐",
+			3: "⭐⭐⭐",
+			4: "⭐⭐⭐⭐",
+			5: "⭐⭐⭐⭐⭐",
+			6: "⭐⭐⭐⭐⭐⭐",
+		}
+		countlist = []
+	
+
+		function addEvent(el, type, handle) {
+			try {  // Chrome、FireFox、Opera、Safari、IE9.0及其以上版本
+				el.addEventListener(type, handle, false);
+			} catch (e) {
+				try {  // IE8.0及其以下版本
+					el.attachEvent('on' + type, handle);
+				} catch (e) {  // 早期浏览器
+					el['on' + type] = handle;
+				}
+			}
+		}
+
+		function inserttable() {
+			tjs = document.getElementById("jsList").innerHTML = ""
+
+			countlist=myships[0]
+			for (var key in countlist) {
+				kk = countlist[key]
+				valu = document.getElementById("max").value
+				if (kk["title"].indexOf(valu) == -1) {
+					continue
+				}
+				kdata=hasdata(myTactics,"boat_id",key,true)
+				if(kdata!=false)
+				{
+					console.log(kdata)
+					//console.log(kk)
+					zss=""
+					kdata.forEach(element => {
+						mdata=hasdata(myShipTactics,"cid",element["cid"])
+						if(mdata!=false)
+						{
+							zss+="<div>["+mdata["type"]+"] "+mdata["title"]+" Lv."+mdata["level"]+" 经验:"+element["exp"]+"</div>"
+							//console.log(mdata)
+					
+						}
+					});
+					addRow(
+							"<div title='love="+kk["love"]+"' style='width:150px;display: inline-block;vertical-align: middle;line-height: 63px;'>"+kk["title"]+"</div>",
+							zss,
+							kk["level"])
+		
+				}
+
+		
+				if (-1== -1) {
+					continue
+				}
+				//addRow(timef, "<div title='"+ship["desc"]+"' style='width:150px;display: inline-block;vertical-align: middle;line-height: 63px;'>"+ship["title"]+"</div>"+"<img style='vertical-align: middle; width: 94px;height: 63px;' src='photo/"+ship["picId"]+".png' />", stars[ship["star"]], kk["path"], kk["access"])
+				//console.log(ship)
+			}
+		}
+		inserttable()
+		function hasdata(obj,key,valu,list=false)
+		{
+
+			listv=[]
+			for(var k in obj)
+			{
+				if(obj[k][key]==valu)
+				{
+					if(list)
+					{
+						listv.push(obj[k])
+					}
+					else
+					{
+						return obj[k]
+					}
+					
+				}
+
+			}
+			if(listv.length!=0)
+			{
+				return listv;
+			}
+			return false;
+
+		}
+		
+		function addRow(col1, col2, col3) {
+			var row = tb.insertRow(tb.FetchRowCount);
+			row.insertCell(0).innerHTML = col1;
+			row.insertCell(1).innerHTML = col2;
+			row.insertCell(2).innerHTML = col3;
+		}
+		function sort(type, order) {
+			var table = document.getElementById("jsList");
+			var trArr = table.children;
+			var intType;
+			intType = asclist[type]
+
+			var temp
+			if (order == "asc") {
+				for (var i = 0; i < trArr.length - 1; i++) {
+					for (j = 0; j < trArr.length - i - 1; j++) {
+						if ((trArr[j].children[intType].innerHTML) > (trArr[j + 1].children[intType].innerHTML)) {
+							temp = trArr[j].innerHTML;
+							trArr[j].innerHTML = trArr[j + 1].innerHTML;
+							trArr[j + 1].innerHTML = temp;
+
+						}
+
+					}
+
+				}
+			} else {
+				for (var i = 0; i < trArr.length - 1; i++) {
+					for (j = 0; j < trArr.length - i - 1; j++) {
+						if ((trArr[j].children[intType].innerHTML) < (trArr[j + 1].children[intType].innerHTML)) {
+							temp = trArr[j].innerHTML;
+							trArr[j].innerHTML = trArr[j + 1].innerHTML;
+							trArr[j + 1].innerHTML = temp;
+
+						}
+
+					}
+
+				}
+			}
+
+		}
+		function ok() {
+			inserttable()
+		}
+	</script>
+</body>
+
+</html>

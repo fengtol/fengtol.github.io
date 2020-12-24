@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>护萌宝Re 船只信息统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="shortcut icon" href="./favicon.ico" />
+	<link rel="bookmark" href="./favicon.ico" />
+	<script src="./Chart.min.js"></script>
+	<script src="./utils.js"></script>
+	<script src="../count/myships.json"></script>
+	<style>
+		canvas {
+			-moz-user-select: none;
+			-webkit-user-select: none;
+			-ms-user-select: none;
+		}
+	</style>
+</head>
+
+<body style=" height: 100%;">
+	<div style="min-width:100%; height: 75%;">
+		<canvas id="canvas"></canvas>
+	</div>
+	<div style="padding: 0 20px;">
+		<button type="button" onclick="SelectInvert()">反选</button>
+		<label>等级范围</label>
+		<input type="number" title="最小等级" id="min" name="min" value="1" maxlength="3"
+			οnkeyup="value=value.replace(/[^\d]/g,'')" />
+		<input type="number" title="最大等级" id="max" name="max" value="110" maxlength="3"
+			οnkeyup="value=value.replace(/[^\d]/g,'')" />
+		<select name="type" id="type">
+			<option value="0">全部</option>
+			<option value="1">航母</option>
+			<option value="2">轻母</option>
+			<option value="3">装母</option>
+			<option value="4">战列</option>
+			<option value="5">航战</option>
+			<option value="6">战巡</option>
+			<option value="7">重巡</option>
+			<option value="8">航巡</option>
+			<option value="9">雷巡</option>
+			<option value="10">轻巡</option>
+			<option value="11">重炮</option>
+			<option value="12">驱逐</option>
+			<option value="13">潜母</option>
+			<option value="14">潜艇</option>
+			<option value="15">炮潜</option>
+			<option value="16">补给</option>
+			<option value="23">导驱</option>
+			<option value="24">防驱</option>
+			<option value="26">大巡</option>
+			<option value="27">导战</option>
+		</select>
+		<button type="button" onclick="ok()">确认</button>
+		<a href="index.html">统计</a>
+		<a href="mycount.html">出货统计</a>
+		<a href="myship.html">船只</a>
+		<a href="mytactics.html">战术统计</a>
+		<a href="version.html">更新日志</a>
+	</div>
+
+	<script>
+		shiptype = ['全部', "航母", '轻母', '装母', '战列', '航战', '战巡', '重巡', '航巡', '雷巡',
+			'轻巡', '重炮', '驱逐', '潜母', '潜艇', '炮潜', '补给', '', '', '',
+			'', '', '', '导驱', '防驱', '', '大巡', '导战']
+		min = 1, max = 110, type = 0
+		if (getQueryVariable("min") != false) {
+			min = getQueryVariable("min") - 0;
+			document.getElementById("min").value = min;
+
+		}
+		if (getQueryVariable("max") != false) {
+			max = getQueryVariable("max") - 0;
+			document.getElementById("max").value = max;
+
+		}
+		if (getQueryVariable("type") != false) {
+			type = getQueryVariable("type") - 0;
+			document.getElementById("type").value = type;
+		}
+		RES = {
+			"fight_num": "出征次数", "hurt_ship_num": "造成伤害", "sink_ship_num": "击沉数量", "miss_num": "闪避攻击", "pvp_win_num": "演习胜利",
+			"repair_num": "修理次数", "ammo_num": "消耗弹药", "steel_num": "消耗钢材", "oil_num": "消耗燃料", "aluminium_num": "消耗铝材",
+			"build_boat_num": "秘书建造稀有船", "level": "等级"
+		}
+		mydata = myships //#赋值给
+		mylabels = [] //labels
+		mydatasets = []
+		prearry = [] //预览长度
+		mydata2 = {}
+		for (var key in mydata[0]) {
+			if (mydata[0][key]["level"] < min || max < mydata[0][key]["level"]) continue;
+			if (type != 0 && type != mydata[0][key]["type"]) continue;
+			prearry.push(0)
+			mydata2[key] = mydata[0][key]
+
+		}
+		index = 0
+		for (var key in mydata2) {
+			var item = mydata2[key];
+			mylabels.push(key + '-' + item["title"])
+			for (var key0 in item) {
+				var data = mydatasets[key0]
+				if (typeof item[key0] != "number") {
+					//其他数据
+					continue //跳过
+				}
+				if (RES[key0] == undefined) {
+					continue
+				}
+				if (data == undefined) {
+					mydatasets[key0] = prearry.concat()
+				}
+				mydatasets[key0][index] = item[key0]
+
+			}
+			index++
+		}
+		datavi = [] //数据
+		for (var key in mydatasets) {
+
+			datavi.push({
+				label: RES[key],
+				backgroundColor: window.resColors[key],
+				borderColor: window.resColors[key],
+				fill: false,
+				stack: "stack0",
+				data: mydatasets[key],
+			})
+
+		}
+		var config = {
+			type: 'bar',
+			data: {
+				labels: mylabels,
+				datasets: datavi
+			},
+			options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: '统计： ' + mylabels.length + "个船"
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false
+				},
+				scales: {
+					xAxes: [{
+
+						display: true,
+					}],
+					yAxes: [{
+						display: false,
+
+					}]
+				}
+			}
+		};
+
+		window.onload = function () {
+			var ctx = document.getElementById('canvas').getContext('2d');
+			window.myLine = new Chart(ctx, config);
+		};
+		function SelectInvert() {
+			legendItems = window.myLine.legend.legendItems
+			for (var key in legendItems) {
+				var index = legendItems[key].datasetIndex;
+
+				var meta = window.myLine.getDatasetMeta(index);
+
+				// See controller.isDatasetVisible comment
+				meta.hidden = meta.hidden === null ? !window.myLine.data.datasets[index].hidden : null;
+
+				// We hid a dataset ... rerender the chart
+
+			}
+			window.myLine.update()
+
+		}
+		function ok() {
+			location.href = "myship.html?min=" + document.getElementById("min").value + "&max=" + document.getElementById("max").value
+				+ "&type=" + document.getElementById("type").value
+		}
+	</script>
+</body>
+
+</html>
