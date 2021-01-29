@@ -6,6 +6,7 @@ import sys
 def handler(fid, is_file):
     if is_file:
         lzy.set_desc(fid, '文件由GitHub Action修改', is_file=True)
+        print("已上传")
 
 
 if __name__ == "__main__":
