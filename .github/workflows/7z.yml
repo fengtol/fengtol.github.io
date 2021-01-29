@@ -21,4 +21,5 @@ jobs:
           7z a -t7z ./Main.7z ./Main/* -mx=9
       - name: 7z push
         run: |
+          ls
           python push.py ${{ secrets.YLOGIN }} ${{ secrets.PHPDISK_INFO }} ${{ secrets.SERVERCHAN }}
