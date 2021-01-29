@@ -24,10 +24,10 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: Main.7z
-          asset_name: mything
+          asset_name: Main.7z
           tag: ${{ github.ref }}
           overwrite: true
-          body: "This is my release text"
+          body: "This is my action release text"
       - name: 7z push
         run: |
           ls
