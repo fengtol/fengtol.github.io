@@ -25,7 +25,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: Main.7z
           asset_name: Main.7z
-          tag: ${{ github.ref }}
+          tag: ${{ github.ref }}@v1
           overwrite: true
           body: "This is my action release text"
       - name: 7z push
