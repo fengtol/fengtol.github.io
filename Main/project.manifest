@@ -1,7 +1,7 @@
 {
   "assets": {
     "./Main.exe": {
-      "md5": "15d275da4bd98aff1a594f91d8b2138c"
+      "md5": "65cd7588519fbbc750af377e957a795a"
     },
     "./Main.exe.manifest": {
       "md5": "3b174b174d9629bfdafdfdd0ad18ca16"
@@ -70,7 +70,7 @@
       "md5": "aeab74db6bc6c914997f1a8a9ff013ec"
     },
     "./base_library.zip": {
-      "md5": "d2a6c579313d9e70643ac5ff684ae9e7"
+      "md5": "a12be198ad2b11c5c6f19f23bc0c68e0"
     },
     "./certifi/cacert.pem": {
       "md5": "1ba3b44f73a6b25711063ea5232f4883"
