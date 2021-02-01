@@ -27,7 +27,7 @@ jobs:
           asset_name: Main.7z
           tag: ${{ github.ref }}@v1
           overwrite: true
-          body: "This is my action release text"
+          body: "This is my action release text ${{ GITHUB_SHA }}"
       - name: 7z push
         run: |
           ls
