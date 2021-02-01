@@ -25,6 +25,6 @@ if __name__ == "__main__":
     if lzy.login_by_cookie(cookie) == LanZouCloud.SUCCESS:
         ls = lzy.get_dir_list()
         modid = ls.name_id["Main"]
-        lzy.upload_file("./Main.7z", modid, callback=show_progress, uploaded_handler=handler)
+        lzy.upload_file("Main.7z", modid, callback=show_progress, uploaded_handler=handler)
     else:
         requests.get('http://sc.ftqq.com/{ServerChan}.send?text=蓝奏云登录失败！')
