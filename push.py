@@ -33,7 +33,7 @@ if __name__ == "__main__":
         else:
             print("失败重试")
             if upload("Main.7z", modid) != LanZouCloud.SUCCESS:
-                requests.get('http://sc.ftqq.com/{ServerChan}.send?text=蓝奏云上传失败2次！')
+                requests.get(f'http://sc.ftqq.com/{ServerChan}.send?text=蓝奏云上传失败2次！')
                 print("失败")
     else:
-        requests.get('http://sc.ftqq.com/{ServerChan}.send?text=蓝奏云登录失败！')
+        requests.get(f'http://sc.ftqq.com/{ServerChan}.send?text=蓝奏云登录失败！')
