@@ -2,6 +2,7 @@ from lanzou.api import LanZouCloud
 import requests
 import sys
 
+lzy = LanZouCloud()
 
 def handler(fid, is_file):
     if is_file:
@@ -15,25 +16,35 @@ def show_progress(file_name, total_size, now_size):
     print('\r{:.2f}%\t[{}] {:.1f}/{:.1f}MB | {} '.format(percent * 100, bar_str, now_size / 1048576, total_size / 1048576, file_name), end='')
     if total_size == now_size:
         print('')  # 下载完成换行
-def upload(path, id):
+def upload(path, id, trynum=1, num=0):
+    """ path:文件路径 id:文件夹id trynum:可执行次数 num:执行次数 """
     print('开始上传文件')
     code = lzy.upload_file(path, id, callback=show_progress, uploaded_handler=handler)
+    num += 1
+    if code != LanZouCloud.SUCCESS and trynum > num:
+        print("失败重试")
+        upload(path, id, trynum, num)
+    elif code != LanZouCloud.SUCCESS:
+        print("上传失败")
+    elif code == LanZouCloud.SUCCESS:
+        print("上传成功")
     return code
 if __name__ == "__main__":
     ylogin = sys.argv[1]
     phpdisk_info = sys.argv[2]
     ServerChan = sys.argv[3]
-    lzy = LanZouCloud()
+    un_cover = False
+    if len(sys.argv)>=5:
+        un_cover = True
     cookie = {'ylogin': ylogin, 'phpdisk_info': phpdisk_info}
     if lzy.login_by_cookie(cookie) == LanZouCloud.SUCCESS:
         ls = lzy.get_dir_list()
         modid = ls.name_id["Main"]
-        if upload("Main.7z", modid) == LanZouCloud.SUCCESS:
-            print("上传成功")
+        if un_cover:
+            listf = lzy.get_file_list(modid)
+            if 'Main.7z' not in lzy.get_file_list(listf).all_name:
+                upload("./Main.7z", modid, 3)
         else:
-            print("失败重试")
-            if upload("Main.7z", modid) != LanZouCloud.SUCCESS:
-                requests.get(f'http://sc.ftqq.com/{ServerChan}.send?text=蓝奏云上传失败2次！')
-                print("失败")
+            upload("./Main.7z", modid, 3)
     else:
         requests.get(f'http://sc.ftqq.com/{ServerChan}.send?text=蓝奏云登录失败！')
