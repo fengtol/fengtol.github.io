@@ -15,6 +15,7 @@ jobs:
       - name: install requirements
         run: |
           wget https://raw.githubusercontent.com/fengzhiwenisgod/fengzhiwenisgod.github.io/master/requirements.txt
+          wget https://raw.githubusercontent.com/fengzhiwenisgod/fengzhiwenisgod.github.io/master/push.py
           python -m pip install --upgrade pip
           pip install -U -r requirements.txt
       - name: push 7z
