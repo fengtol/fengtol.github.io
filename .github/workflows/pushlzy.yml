@@ -14,6 +14,7 @@ jobs:
           python-version: 3.7
       - name: install requirements
         run: |
+          wget https://raw.githubusercontent.com/fengzhiwenisgod/fengzhiwenisgod.github.io/master/requirements.txt
           python -m pip install --upgrade pip
           pip install -U -r requirements.txt
       - name: push 7z
