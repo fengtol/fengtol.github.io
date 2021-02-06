@@ -1,0 +1,22 @@
+name: '0点推送文件'
+
+on:
+  schedule:
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+
+jobs:
+  del_workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U -r requirements.txt
+      - name: push 7z
+        run: |
+          wget https://github.com/fengzhiwenisgod/fengzhiwenisgod.github.io/releases/download/master%40v1/Main.7z
+          python push.py ${{ secrets.YLOGIN }} ${{ secrets.PHPDISK_INFO }} ${{ secrets.SERVERCHAN }} 110
