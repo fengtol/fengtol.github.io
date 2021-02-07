@@ -34,6 +34,7 @@ if __name__ == "__main__":
     phpdisk_info = sys.argv[2]
     ServerChan = sys.argv[3]
     un_cover = False
+    print(len(sys.argv))
     if len(sys.argv)>=5:
         un_cover = True
     cookie = {'ylogin': ylogin, 'phpdisk_info': phpdisk_info}
