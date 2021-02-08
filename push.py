@@ -43,7 +43,7 @@ if __name__ == "__main__":
         modid = ls.name_id["Main"]
         if un_cover:
             listf = lzy.get_file_list(modid)
-            if 'Main.7z' not in lzy.get_file_list(listf).all_name:
+            if 'Main.7z' not in listf.all_name:
                 upload("./Main.7z", modid, 3)
         else:
             upload("./Main.7z", modid, 3)
