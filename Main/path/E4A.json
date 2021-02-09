@@ -1,0 +1,38 @@
+{
+	"allDetail": {
+		"Y": {
+			"foe1Switch": false,
+			"foe2Switch": false,
+			"foe1Format": 0,
+			"foe2Format": 0,
+			"foe1Compare": 0,
+			"foe2Compare": 0,
+			"buff": 0,
+			"foe1Num": "1",
+			"foe2Num": "1",
+			"foe1Deal": 0,
+			"foe2Deal": 0,
+			"spy": false,
+			"spyDeal": 0,
+			"nightFight": true,
+			"isFormat": true,
+			"format": 3
+		},
+		"change":"WMNL",
+		"config_name":"E4B.json"
+		
+	},
+	"map": "10107",
+	"name": "E4A",
+	"point": "ACDFJNGKMOQPSRUVTWIXY",
+	"format": 0,
+	"spyFail": 0,
+	"skip": false,
+	"skipDeal": 0,
+	"hmChange": false,
+	"qmChange": false,
+	"qtChange": false,
+	"reward": false,
+	"nightFight": false,
+	"resource": false
+}
