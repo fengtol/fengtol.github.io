@@ -1,7 +1,7 @@
 {
   "assets": {
     "./Main.exe": {
-      "md5": "ef5f729d79feec0318e1c05fb4d36265"
+      "md5": "391510c58fa3909c82e60d4088ce8d85"
     },
     "./Main.exe.manifest": {
       "md5": "3b174b174d9629bfdafdfdd0ad18ca16"
@@ -70,7 +70,7 @@
       "md5": "aeab74db6bc6c914997f1a8a9ff013ec"
     },
     "./base_library.zip": {
-      "md5": "a767df80c818a9e3d09b2c265c8095ff"
+      "md5": "378a713741f350b87e3b34585e93bde3"
     },
     "./certifi/cacert.pem": {
       "md5": "1ba3b44f73a6b25711063ea5232f4883"
@@ -361,10 +361,10 @@
       "md5": "47f6ae14a65a09cc1485807f4a9fdd2a"
     },
     "./path/E4A.json": {
-      "md5": "d685894f614a4f5807d97d79310f1658"
+      "md5": "d47348342fa872b07a8dd874cfbc647c"
     },
     "./path/E4B.json": {
-      "md5": "5de01d9159349dd609a709424590c9e7"
+      "md5": "65d17073f97c7a571dbbfda6aa3e45c4"
     },
     "./path/\u5468\u5e381-1.json": {
       "md5": "aa0f7f4cbc6eb52b39304bf26d50d1cc"
