@@ -1,7 +1,7 @@
 {
   "assets": {
     "./Main.exe": {
-      "md5": "391510c58fa3909c82e60d4088ce8d85"
+      "md5": "5ac2afef5217d8f9826b0a0fe026e63d"
     },
     "./Main.exe.manifest": {
       "md5": "3b174b174d9629bfdafdfdd0ad18ca16"
@@ -70,7 +70,7 @@
       "md5": "aeab74db6bc6c914997f1a8a9ff013ec"
     },
     "./base_library.zip": {
-      "md5": "378a713741f350b87e3b34585e93bde3"
+      "md5": "3a3ecfde8f5c67aae8943148f51e093b"
     },
     "./certifi/cacert.pem": {
       "md5": "1ba3b44f73a6b25711063ea5232f4883"
@@ -166,7 +166,7 @@
       "md5": "a3b8b5a9ebded2e19d0399b6ff2496b6"
     },
     "./icon/myship.html": {
-      "md5": "b895f4efb02540968ace39ccda455808"
+      "md5": "8fb31ddd84343417a7bd7d4b732cf5d6"
     },
     "./icon/mytactics.html": {
       "md5": "5f0e312af57298fadfe89c55dc0a21ca"
@@ -217,7 +217,7 @@
       "md5": "e6e51a3b151b87030b616bb9e2698c4b"
     },
     "./icon/utils.js": {
-      "md5": "fb449ec813f6b3e5db7a5bd4ce043764"
+      "md5": "5b0a9ea128afb58ac3224a189f1c3b2c"
     },
     "./icon/version.html": {
       "md5": "409c1177fcd6000fb325a7ed17760386"
