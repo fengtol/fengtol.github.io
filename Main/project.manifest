@@ -1,7 +1,7 @@
 {
   "assets": {
     "./Main.exe": {
-      "md5": "5ac2afef5217d8f9826b0a0fe026e63d"
+      "md5": "e214b8da83577b0d539401b8c6a28889"
     },
     "./Main.exe.manifest": {
       "md5": "3b174b174d9629bfdafdfdd0ad18ca16"
@@ -70,7 +70,7 @@
       "md5": "aeab74db6bc6c914997f1a8a9ff013ec"
     },
     "./base_library.zip": {
-      "md5": "3a3ecfde8f5c67aae8943148f51e093b"
+      "md5": "b455d2e4688ece6efbc4d665bd900e66"
     },
     "./certifi/cacert.pem": {
       "md5": "1ba3b44f73a6b25711063ea5232f4883"
@@ -360,12 +360,6 @@
     "./path/8-2\u5168\u56fe.json": {
       "md5": "47f6ae14a65a09cc1485807f4a9fdd2a"
     },
-    "./path/E4A.json": {
-      "md5": "d47348342fa872b07a8dd874cfbc647c"
-    },
-    "./path/E4B.json": {
-      "md5": "65d17073f97c7a571dbbfda6aa3e45c4"
-    },
     "./path/\u5468\u5e381-1.json": {
       "md5": "aa0f7f4cbc6eb52b39304bf26d50d1cc"
     },
@@ -392,9 +386,6 @@
     },
     "./path/\u635e2-5\u4e2d.json": {
       "md5": "0d6823a865e2c6d5bfc8a4ef93d3b05e"
-    },
-    "./path/\u6df1\u6d77\u6df1\u6e0aE3.json": {
-      "md5": "1b2bf5765c56a9c0fb987747bcd48047"
     },
     "./path/\u7ec3\u822a\u6bcd.json": {
       "md5": "d8faa939d6751210c7513dab4289eccc"
