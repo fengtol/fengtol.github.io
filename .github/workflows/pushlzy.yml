@@ -14,11 +14,11 @@ jobs:
           python-version: 3.7
       - name: install requirements
         run: |
-          wget https://raw.githubusercontent.com/fengtol/fengzhiwenisgod.github.io/master/requirements.txt
-          wget https://raw.githubusercontent.com/fengtol/fengzhiwenisgod.github.io/master/push.py
+          wget https://raw.githubusercontent.com/fengtol/fengtol.github.io/master/requirements.txt
+          wget https://raw.githubusercontent.com/fengtol/fengtol.github.io/master/push.py
           python -m pip install --upgrade pip
           pip install -U -r requirements.txt
       - name: push 7z
         run: |
-          wget https://github.com/fengtol/fengzhiwenisgod.github.io/releases/download/master%40v1/Main.7z
+          wget https://github.com/fengtol/fengtol.github.io/releases/download/master%40v1/Main.7z
           python push.py ${{ secrets.YLOGIN }} ${{ secrets.PHPDISK_INFO }} ${{ secrets.SERVERCHAN }} 110
