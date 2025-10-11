@@ -1,4 +1,22 @@
-@CHARSET "UTF-8";
+.bottom-bar {
+	background: linear-gradient(90deg, #eaf3ff 0%, #dbeaff 100%);
+	border-radius: 12px 12px 0 0;
+	box-shadow: 0 -2px 8px rgba(60,120,255,0.08);
+	padding: 16px 0;
+	text-align: center;
+	font-size: 14px;
+	color: #3586ff;
+	transition: box-shadow 0.2s, background 0.2s;
+}
+.bottom-bar a {
+	color: #5f9ff7;
+	text-decoration: none;
+	margin: 0 8px;
+	transition: color 0.2s;
+}
+.bottom-bar a:hover {
+	color: #222;
+}
 .bottom-bar-background {
 	zoom: 1;
 	width: 100%;

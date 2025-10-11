@@ -1,4 +1,28 @@
-@CHARSET "UTF-8";
+.cute-nav {
+	background: linear-gradient(90deg, #5f9ff7 0%, #3586ff 100%);
+	border-radius: 16px;
+	box-shadow: 0 4px 16px rgba(60,120,255,0.10);
+	padding: 12px 24px;
+	display: flex;
+	gap: 16px;
+	align-items: center;
+}
+.cute-nav-item {
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 2px 8px rgba(60,120,255,0.08);
+	padding: 8px 18px;
+	font-size: 15px;
+	color: #3586ff;
+	cursor: pointer;
+	transition: box-shadow 0.2s, transform 0.2s, color 0.2s;
+}
+.cute-nav-item:hover {
+	box-shadow: 0 4px 16px rgba(60,120,255,0.18);
+	color: #fff;
+	background: linear-gradient(90deg, #5f9ff7 0%, #3586ff 100%);
+	transform: scale(1.04);
+}
 
 .portal-bar{
 	position:relative;
@@ -68,7 +92,7 @@
 	position:absolute;
 	top:160px;
 	left:32px;
-	hight:1px;
+	right:1px;
 	width:611px;
 }
 .dotted-line-img{
@@ -173,7 +197,7 @@
  	left:0px;
   	top:0px;
 	width:1000px;
-	hight:160px;
+	right:160px;
 	border:none;
 }
 .page-link-bar{
