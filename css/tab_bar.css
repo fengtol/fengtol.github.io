@@ -10,7 +10,6 @@
 	box-shadow: 0 4px 16px rgba(60,120,255,0.10);
 	display: flex;
 	align-items: center;
-	padding: 0 16px;
 }
 
 .tab-bar-head-ul {
@@ -21,7 +20,7 @@
 	height: 56px;
 	align-items: center;
 	margin: 0;
-	padding: 0;
+	padding: 0 16px;
 	list-style: none;
 }
 
@@ -67,7 +66,6 @@
 	background: #fff;
 	border-radius: 0 0 16px 16px;
 	box-shadow: 0 2px 8px rgba(60,120,255,0.08);
-	padding: 24px;
 }
 
 
