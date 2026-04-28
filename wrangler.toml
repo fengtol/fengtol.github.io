@@ -1,8 +1,0 @@
-name = "chrome-homepage"
-main = "functions/exchange-token.js"
-compatibility_date = "2024-01-01"
-
-[env.production]
-name = "chrome-homepage"
-route = "https://hub.lineoff.fun/*"
-zone_id = "95cb00e8a07d9422b1960f4b95c394f4"
