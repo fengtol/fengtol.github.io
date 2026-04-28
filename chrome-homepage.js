@@ -1,11 +1,15 @@
 const CLIENT_ID = 'Ov23lifw4crbtBHZ1ZMH';
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const AUTH_URL = 'https://github.com/login/oauth/authorize';
-const SCOPES = ['read:user', 'user:email', 'gist'];
+const SCOPES = ['read:user', 'user:email', 'repo'];
+const GITHUB_REPO_OWNER = 'fengtol';
+const GITHUB_REPO_NAME = 'fengtol.github.io';
+const GITHUB_REPO = `${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}`;
+const ISSUE_TITLE = 'Chrome Homepage Shortcuts';
 const STORAGE_ENGINE_KEY = 'chrome_homepage_search_engine';
 const STORAGE_HISTORY_KEY = 'chrome_homepage_visit_history';
 const STORAGE_SHORTCUTS_KEY = 'chrome_homepage_shortcuts';
-const STORAGE_GIST_ID_KEY = 'chrome_homepage_gist_id';
+const STORAGE_ISSUE_NUMBER_KEY = 'chrome_homepage_issue_number';
 const STORAGE_CLIENT_SECRET_KEY = 'chrome_homepage_client_secret';
 const STORAGE_GITHUB_TOKEN_KEY = 'chrome_homepage_github_token';
 const STORAGE_AUTH_METHOD_KEY = 'chrome_homepage_auth_method';
@@ -224,13 +228,13 @@ function showShortcutEditor() {
     renderShortcutEditor();
 }
 
-// GitHub Gist 同步相关函数
-function getGistId() {
-    return localStorage.getItem(STORAGE_GIST_ID_KEY);
+// GitHub Issue 同步相关函数
+function getIssueNumber() {
+    return localStorage.getItem(STORAGE_ISSUE_NUMBER_KEY);
 }
 
-function setGistId(gistId) {
-    localStorage.setItem(STORAGE_GIST_ID_KEY, gistId);
+function setIssueNumber(issueNumber) {
+    localStorage.setItem(STORAGE_ISSUE_NUMBER_KEY, issueNumber);
 }
 
 async function githubApiRequest(endpoint, options = {}) {
@@ -300,7 +304,11 @@ async function getAccessToken() {
                 }
             } catch (error) {
                 console.error('Token exchange failed:', error);
-                alert('获取访问令牌时发生错误：' + error.message);
+                if (error.message && error.message.includes('Failed to fetch')) {
+                    alert('获取访问令牌失败：浏览器无法直接访问 GitHub 的 access_token 接口。\n请改用 Personal Access Token，或使用后端代理完成 OAuth 令牌交换。');
+                } else {
+                    alert('获取访问令牌时发生错误：' + error.message);
+                }
             }
         }
 
@@ -325,39 +333,36 @@ async function syncShortcutsToGithub() {
         }
 
         const shortcuts = getShortcuts();
-        const gistData = {
-            description: 'Chrome Homepage Shortcuts',
-            public: false,
-            files: {
-                'shortcuts.json': {
-                    content: JSON.stringify({
-                        shortcuts: shortcuts,
-                        lastSync: new Date().toISOString(),
-                        version: '1.0'
-                    }, null, 2)
-                }
-            }
+        const issueBody = JSON.stringify({
+            shortcuts: shortcuts,
+            lastSync: new Date().toISOString(),
+            version: '1.0'
+        }, null, 2);
+
+        const issueData = {
+            title: ISSUE_TITLE,
+            body: issueBody
         };
 
-        let gistId = getGistId();
+        let issueNumber = getIssueNumber();
         let response;
 
-        if (gistId) {
-            // 更新现有 Gist
-            response = await githubApiRequest(`/gists/${gistId}`, {
+        if (issueNumber) {
+            // 更新现有 Issue
+            response = await githubApiRequest(`/repos/${GITHUB_REPO}/issues/${issueNumber}`, {
                 method: 'PATCH',
-                body: JSON.stringify(gistData)
+                body: JSON.stringify(issueData)
             });
         } else {
-            // 创建新 Gist
-            response = await githubApiRequest('/gists', {
+            // 创建新 Issue
+            response = await githubApiRequest(`/repos/${GITHUB_REPO}/issues`, {
                 method: 'POST',
-                body: JSON.stringify(gistData)
+                body: JSON.stringify(issueData)
             });
-            setGistId(response.id);
+            setIssueNumber(response.number);
         }
 
-        alert(`常用网站数据已成功同步到 GitHub Gist！\nGist ID: ${response.id}\nURL: ${response.html_url}`);
+        alert(`常用网站数据已成功同步到 GitHub Issue！\nIssue 号: ${response.number}\nURL: ${response.html_url}`);
 
     } catch (error) {
         console.error('GitHub sync error:', error);
@@ -371,18 +376,16 @@ async function syncShortcutsToGithub() {
     }
 }
 
-async function loadShortcutsFromGist() {
+async function loadShortcutsFromIssue() {
     try {
-        const gistId = getGistId();
-        if (!gistId) {
+        const issueNumber = getIssueNumber();
+        if (!issueNumber) {
             return false;
         }
 
-        const gistData = await githubApiRequest(`/gists/${gistId}`);
-        const shortcutsFile = gistData.files['shortcuts.json'];
-
-        if (shortcutsFile && shortcutsFile.content) {
-            const data = JSON.parse(shortcutsFile.content);
+        const issueData = await githubApiRequest(`/repos/${GITHUB_REPO}/issues/${issueNumber}`);
+        if (issueData && issueData.body) {
+            const data = JSON.parse(issueData.body);
             if (data.shortcuts && Array.isArray(data.shortcuts)) {
                 saveShortcuts(data.shortcuts);
                 renderShortcuts();
@@ -390,7 +393,7 @@ async function loadShortcutsFromGist() {
             }
         }
     } catch (error) {
-        console.error('从 Gist 加载数据失败:', error.message);
+        console.error('从 Issue 加载数据失败:', error.message);
     }
 
     return false;
@@ -434,7 +437,7 @@ function showGithubSettings() {
                 <div class="setting-field" id="patField" style="${currentAuthMethod === 'pat' ? '' : 'display:none'}">
                     <label>Personal Access Token:</label>
                     <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxx" value="${localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY) || ''}">
-                    <small>去 <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings > Developer settings > Personal access tokens</a> 创建 token，需要 gist 权限</small>
+                    <small>去 <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings > Developer settings > Personal access tokens</a> 创建 token，需要 repo 权限（或 public_repo）。</small>
                 </div>
                 <div class="setting-field" id="oauthField" style="${currentAuthMethod === 'oauth' ? '' : 'display:none'}">
                     <label>Client Secret:</label>
@@ -442,9 +445,9 @@ function showGithubSettings() {
                     <small>从 <a href="https://github.com/settings/developers" target="_blank">GitHub OAuth Apps</a> 获取 Client Secret</small>
                 </div>
                 <div class="setting-field">
-                    <label>Gist ID (可选):</label>
-                    <input type="text" id="gistIdInput" placeholder="现有 Gist ID" value="${getGistId() || ''}">
-                    <small>如果已有 Gist，可以手动输入 ID</small>
+                    <label>Issue 号 (可选):</label>
+                    <input type="text" id="issueNumberInput" placeholder="现有 Issue 号" value="${getIssueNumber() || ''}">
+                    <small>如果已有 Issue，可以手动输入号码</small>
                 </div>
                 <div class="setting-actions">
                     <button class="primary-btn" id="saveGithubSettings">保存设置</button>
@@ -497,9 +500,9 @@ function showGithubSettings() {
             }
         }
 
-        const gistId = document.getElementById('gistIdInput').value.trim();
-        if (gistId) {
-            setGistId(gistId);
+        const issueNumber = document.getElementById('issueNumberInput').value.trim();
+        if (issueNumber) {
+            setIssueNumber(issueNumber);
         }
 
         document.body.removeChild(modal);
@@ -572,18 +575,18 @@ async function updateLoginStatus() {
 
     const authMethod = localStorage.getItem(STORAGE_AUTH_METHOD_KEY) || 'pat';
     const token = await getAccessToken();
-    const gistId = getGistId();
+    const issueNumber = getIssueNumber();
 
     if (token) {
         profileStatus.textContent = 'GitHub 已连接';
         oauthContent.innerHTML = `
             <div class="oauth-badge">已连接到 GitHub</div>
             <p>认证方式: ${authMethod === 'pat' ? 'Personal Access Token' : 'OAuth 应用'}</p>
-            <p>数据将同步到 GitHub Gist</p>
-            ${gistId ? `<p>Gist ID: <strong>${gistId}</strong></p>` : '<p>尚未创建 Gist</p>'}
+            <p>数据将同步到 GitHub Issue</p>
+            ${issueNumber ? `<p>Issue 号: <strong>${issueNumber}</strong></p>` : '<p>尚未创建 Issue</p>'}
             <div class="sync-actions">
-                <button class="github-sync-button" id="syncGithubButton" type="button">同步到 Gist</button>
-                <button class="secondary-btn" id="loadFromGistButton" type="button">从 Gist 加载</button>
+                <button class="github-sync-button" id="syncGithubButton" type="button">同步到 Issue</button>
+                <button class="secondary-btn" id="loadFromIssueButton" type="button">从 Issue 加载</button>
                 <button class="secondary-btn" id="logoutGithubButton" type="button">断开连接</button>
             </div>
         `;
@@ -598,8 +601,8 @@ async function updateLoginStatus() {
     } else {
         profileStatus.textContent = '未连接';
         oauthContent.innerHTML = `
-            <p>连接 GitHub 账号以同步常用网站数据到 Gist。</p>
-            <p>Gist 是 GitHub 提供的代码片段存储服务。</p>
+            <p>连接 GitHub 账号以同步常用网站数据到 Issue。</p>
+            <p>Issue 是 GitHub 仓库内用于问题和任务的文本存储单元。</p>
             <div class="sync-actions">
                 ${authMethod === 'oauth' ? '<button class="github-login-button" id="githubLoginButton" type="button">连接 GitHub</button>' : ''}
                 <button class="secondary-btn" id="githubSettingsButton" type="button">设置</button>
@@ -610,7 +613,7 @@ async function updateLoginStatus() {
 
 function bindGithubSyncButton() {
     const syncButton = document.getElementById('syncGithubButton');
-    const loadButton = document.getElementById('loadFromGistButton');
+    const loadButton = document.getElementById('loadFromIssueButton');
     const logoutButton = document.getElementById('logoutGithubButton');
     const loginButton = document.getElementById('githubLoginButton');
     const settingsButton = document.getElementById('githubSettingsButton');
@@ -621,11 +624,11 @@ function bindGithubSyncButton() {
 
     if (loadButton) {
         loadButton.addEventListener('click', async () => {
-            const success = await loadShortcutsFromGist();
+            const success = await loadShortcutsFromIssue();
             if (success) {
-                alert('已从 GitHub Gist 加载常用网站数据！');
+                alert('已从 GitHub Issue 加载常用网站数据！');
             } else {
-                alert('从 Gist 加载数据失败，请检查 Gist ID 和网络连接。');
+                alert('从 Issue 加载数据失败，请检查 Issue 号和网络连接。');
             }
         });
     }
@@ -638,7 +641,7 @@ function bindGithubSyncButton() {
             } else {
                 sessionStorage.removeItem('github_access_token');
             }
-            localStorage.removeItem(STORAGE_GIST_ID_KEY);
+            localStorage.removeItem(STORAGE_ISSUE_NUMBER_KEY);
             updateLoginStatus();
         });
     }
@@ -681,8 +684,8 @@ async function initPage() {
     initSearch();
     bindGithubSyncButton();
 
-    // 尝试从 GitHub Gist 加载数据
-    await loadShortcutsFromGist();
+    // 尝试从 GitHub Issue 加载数据
+    await loadShortcutsFromIssue();
 
     document.getElementById('editShortcutsButton').addEventListener('click', showShortcutEditor);
     document.getElementById('addShortcutButton').addEventListener('click', () => {
