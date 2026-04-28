@@ -447,8 +447,28 @@ body {
     margin-top: 12px;
 }
 
-.github-sync-button:hover {
+.github-sync-button:hover,
+.github-login-button:hover {
     opacity: 0.94;
+}
+
+.github-login-button {
+    background: #24292e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.sync-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 640px) {
@@ -466,4 +486,87 @@ body {
     .search-submit {
         width: 100%;
     }
+    .sync-actions {
+        flex-direction: column;
+    }
+}
+
+/* GitHub 设置模态框样式 */
+.github-settings-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.github-settings-content {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: var(--shadow);
+}
+
+.github-settings-content h3 {
+    margin: 0 0 20px 0;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.setting-field {
+    margin-bottom: 20px;
+}
+
+.setting-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.setting-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+.setting-field input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+}
+
+.setting-field small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.setting-field small a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.setting-field small a:hover {
+    text-decoration: underline;
+}
+
+.setting-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
 }
