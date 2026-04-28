@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub OAuth Callback</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+        }
+        .callback-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+            margin: 0 0 20px;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #e74c3c;
+            padding: 15px;
+            background: #fadbd8;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+        .success {
+            color: #27ae60;
+            padding: 15px;
+            background: #d5f4e6;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <h1>正在处理授权...</h1>
+        <div class="spinner"></div>
+        <p>正在与 GitHub 进行认证，请稍候...</p>
+        <div class="error" id="errorMsg"></div>
+        <div class="success" id="successMsg"></div>
+    </div>
+
+    <script>
+        // 获取 URL 中的授权码
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const error = params.get('error');
+
+        if (error) {
+            // 显示错误信息
+            document.getElementById('errorMsg').style.display = 'block';
+            document.getElementById('errorMsg').textContent = `授权失败: ${error}`;
+            document.querySelector('h1').textContent = '授权失败';
+            document.querySelector('.spinner').style.display = 'none';
+        } else if (code) {
+            // 将授权码重定向回主页面，主页面会处理 token 交换
+            window.location.href = `/index.html?code=${encodeURIComponent(code)}`;
+        } else {
+            // 未知错误
+            document.getElementById('errorMsg').style.display = 'block';
+            document.getElementById('errorMsg').textContent = '未找到授权码，请重新尝试';
+            document.querySelector('h1').textContent = '出错了';
+            document.querySelector('.spinner').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

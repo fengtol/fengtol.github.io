@@ -1,56 +1,80 @@
 # Chrome 风格主页 · GitHub Issue 数据同步
 
-> **🎯 重要提示**: 普通用户请使用 **Personal Access Token** 方式，最简单无需配置OAuth应用！
+> **🎯 特点**: 一次登录，自动保存 token，支持多设备同步！
 
-一个类似 Chrome 新标签页的主页，支持搜索引擎切换、访问记录和可编辑常用网站，并可通过 GitHub Issue 同步数据。
+一个类似 Chrome 新标签页的主页，支持搜索引擎切换、访问记录和可编辑常用网站，通过 GitHub Issue 同步数据到云端。
 
-## 认证方式说明
+## 🔐 认证方式
 
-### 📋 配置要求
+仅使用 **OAuth 应用**，一次登录后 token 自动保存在浏览器本地：
 
-| 认证方式 | 需要用户配置OAuth应用 | 需要Client Secret | 推荐指数 |
-|----------|----------------------|------------------|----------|
-| **Personal Access Token** | ❌ 不需要 | ❌ 不需要 | ⭐⭐⭐⭐⭐ |
-| **OAuth 应用** | ⚠️ 需要网站开发者配置 | ✅ 需要（由开发者提供） | ⭐⭐⭐ |
+- ✅ 一次登录即可使用
+- ✅ Token 保存在浏览器本地存储中
+- ✅ 下次打开时自动连接
+- ✅ 完全不需要手动配置 token
 
-**结论**: 普通用户推荐使用 Personal Access Token，无需任何OAuth配置！
+## 🚀 快速开始
 
-## 🚀 推荐使用方式
+### 前置要求
 
-### Personal Access Token（最简单，无需配置）
+1. GitHub 账号
+2. Cloudflare Pages 账号（用于托管后端服务）
+3. GitHub OAuth App（详见部署指南）
 
-这是**强烈推荐**的方式，普通用户**无需配置任何OAuth应用**：
+### 使用流程
 
-1. 直接去 [GitHub Personal Access Tokens](https://github.com/settings/tokens) 创建 token
-2. 选择 `repo` 或 `public_repo` 权限（如果仓库公开，可仅选择 `public_repo`）
-3. 在页面设置中粘贴 token 即可使用
+1. **首次打开**
+   - 点击 "连接 GitHub" 按钮
+   - 跳转到 GitHub 授权页面
+   - 授权后自动返回，token 保存到浏览器
 
-**优势**:
-- ✅ 完全不需要 OAuth 应用配置
-- ✅ 设置最简单（3步完成）
-- ✅ 安全可靠
-- ✅ 功能完整
+2. **同步数据**
+   - 编辑常用网站后点击 "同步到 Issue"
+   - 数据自动上传到 GitHub Issue
+   - 其他设备打开时点击 "从 Issue 加载" 即可获取
 
----
+3. **断开连接**
+   - 点击 "断开连接" 清除浏览器中的 token
 
-## 其他方式（仅供参考）
+## 📋 工作流程
 
-### OAuth 应用方式
+### 首次同步
+1. 点击"连接 GitHub" → 授权
+2. 授权后自动返回主页
+3. 点击"同步到 Issue" → 创建新 Issue 并上传数据
 
-需要网站开发者预先配置 OAuth 应用，普通用户需要获取 Client Secret。
+### 后续同步
+1. 直接点击"同步到 Issue" → 更新现有 Issue
+2. 或"从 Issue 加载" → 从云端下载数据
 
-> 注意：GitHub 的 `https://github.com/login/oauth/access_token` 接口不支持浏览器直接跨域请求。对于纯静态页面，OAuth 登录流程通常需要一个后端代理来完成令牌交换。
+### 跨设备同步
+1. 在新设备上打开主页
+2. 点击"连接 GitHub" → 授权
+3. 点击"从 Issue 加载" → 获取云端数据
 
-**不推荐普通用户使用**，因为配置较为复杂且静态页面下可能会出现“Failed to fetch”错误。请优先使用 Personal Access Token。
-## 数据存储
+## 🏗️ 架构设计
+
+```
+前端 (index.html)
+    ↓
+OAuth 授权 (GitHub)
+    ↓ callback.html
+Cloudflare Pages Function
+    ↓ /api/exchange-token
+GitHub OAuth API
+    ↓ access_token
+浏览器本地存储
+    ↓
+GitHub API (操作 Issue)
+```
+
+## 💾 数据存储
 
 数据以 JSON 格式存储在当前仓库的 GitHub Issue 中：
 
-```
-Issue: "Chrome Homepage Shortcuts"
-```
+**Issue 标题**: "Chrome Homepage Shortcuts"
 
-文件内容示例：
+**Issue Body** 内容示例：
 ```json
 {
   "shortcuts": [
@@ -65,28 +89,9 @@ Issue: "Chrome Homepage Shortcuts"
 }
 ```
 
-## 工作流程
+## 🌐 部署指南
 
-### 首次同步
-1. 点击"连接 GitHub" → 跳转到 GitHub 授权
-2. 授权后返回 → 自动创建仓库 Issue
-3. 点击"同步到 Issue" → 上传数据到新创建的 Issue
-
-### 后续同步
-1. 直接点击"同步到 Issue" → 更新现有 Issue
-2. 或"从 Issue 加载" → 从云端下载数据
-
-### 跨设备同步
-1. 在新设备上连接 GitHub
-2. 点击"从 Issue 加载" → 获取云端数据
-
-## 安全注意
-
-- Issue 存储在当前仓库中，任何有访问权限的用户都可查看
-- Access Token 存储在浏览器会话中，关闭浏览器后清除
-- 建议定期检查 GitHub 应用的权限设置
-
-## 本地开发
+### 本地测试
 
 使用 Python 内置服务器：
 ```bash
@@ -95,32 +100,70 @@ python -m http.server 8000
 
 访问 `http://localhost:8000/index.html`
 
-## 故障排除
+**注意**: 本地测试需要配置 GitHub OAuth 的本地回调 URL（可能需要代理）
 
-### 同步失败
-- 检查网络连接
-- 确认 GitHub 应用配置正确
-- 验证 OAuth 权限包含 `repo` 或 `public_repo`
+### 生产部署
 
-### 无法加载数据
-- 确认 Issue 号已存储
-- 检查 Issue 是否被关闭或删除
-- 验证网络连接
+详见 [DEPLOYMENT-CLOUDFLARE.md](./DEPLOYMENT-CLOUDFLARE.md)
 
-## 关于 Access Token
+部署步骤：
+1. 创建 GitHub OAuth App
+2. 部署到 Cloudflare Pages
+3. 配置环境变量
+4. 更新前端配置
+5. 完成！
 
-### OAuth Access Token vs Personal Access Token
+## 🔒 安全注意
 
-**OAuth Access Token**（通过登录流程获得）：
-- ✅ 可以直接操作 Issue，无需额外创建 token
-- ✅ 权限范围可精确控制
-- ✅ 可以设置过期时间
-- ❌ 需要配置 OAuth 应用
+- ✅ Client Secret 安全保存在 Cloudflare 环境变量中
+- ✅ Token 保存在浏览器本地存储中，关闭浏览器不会清除
+- ✅ 使用 HTTPS 加密传输
+- ✅ Issue 存储在仓库中（建议仓库设为私有）
 
-**Personal Access Token**（手动创建）：
-- ✅ 设置最简单
-- ✅ 不需要 OAuth 应用配置
-- ❌ 需要手动管理 token
-- ❌ 权限相对固定
+## 🆘 故障排除
 
-**结论**: 两种方式都可以直接操作 Issue，选择你觉得更方便的一种！
+### "获取访问令牌失败"
+- 检查 Cloudflare Pages Function 的环境变量配置
+- 确保 Client Secret 正确
+- 查看函数日志获取详细错误信息
+
+### "无法同步到 Issue"
+- 确保已完成 GitHub 授权
+- 检查仓库是否设为私有
+- 验证 GitHub API 权限
+
+### 跨域错误
+- 确保 `TOKEN_EXCHANGE_URL` 正确指向 Cloudflare Pages Function
+- 检查 Cloudflare 的 CORS 配置
+
+## 📚 技术栈
+
+- **前端**: 原生 HTML/CSS/JavaScript
+- **后端**: Cloudflare Pages Functions
+- **存储**: GitHub Issue
+- **认证**: GitHub OAuth 2.0
+
+## 📝 文件说明
+
+- `index.html` - 主页面
+- `callback.html` - OAuth 回调页面
+- `chrome-homepage.js` - 核心逻辑
+- `chrome-homepage.html` - 页面模板
+- `css/` - 样式文件
+- `functions/exchange-token.js` - Cloudflare Worker
+- `DEPLOYMENT-CLOUDFLARE.md` - 详细部署指南
+
+## 🎯 后续改进
+
+- [ ] 支持多个 Gist 同时管理
+- [ ] 导入/导出功能
+- [ ] 网站分类功能
+- [ ] 深色模式支持
+
+## 📄 许可证
+
+MIT License
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！

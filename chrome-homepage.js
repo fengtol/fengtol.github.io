@@ -1,6 +1,7 @@
 const CLIENT_ID = 'Ov23lifw4crbtBHZ1ZMH';
-const REDIRECT_URI = window.location.origin + window.location.pathname;
+const REDIRECT_URI = window.location.origin + '/callback.html';
 const AUTH_URL = 'https://github.com/login/oauth/authorize';
+const TOKEN_EXCHANGE_URL = '/.netlify/functions/exchange-token'; // 改为你的 Cloudflare Pages 后端路径，例如 /api/exchange-token
 const SCOPES = ['read:user', 'user:email', 'repo'];
 const GITHUB_REPO_OWNER = 'fengtol';
 const GITHUB_REPO_NAME = 'fengtol.github.io';
@@ -10,9 +11,7 @@ const STORAGE_ENGINE_KEY = 'chrome_homepage_search_engine';
 const STORAGE_HISTORY_KEY = 'chrome_homepage_visit_history';
 const STORAGE_SHORTCUTS_KEY = 'chrome_homepage_shortcuts';
 const STORAGE_ISSUE_NUMBER_KEY = 'chrome_homepage_issue_number';
-const STORAGE_CLIENT_SECRET_KEY = 'chrome_homepage_client_secret';
 const STORAGE_GITHUB_TOKEN_KEY = 'chrome_homepage_github_token';
-const STORAGE_AUTH_METHOD_KEY = 'chrome_homepage_auth_method';
 const GITHUB_API_BASE = 'https://api.github.com';
 
 const SEARCH_ENGINES = [
@@ -263,72 +262,53 @@ async function githubApiRequest(endpoint, options = {}) {
 }
 
 async function getAccessToken() {
-    const authMethod = localStorage.getItem(STORAGE_AUTH_METHOD_KEY) || 'pat';
-
-    if (authMethod === 'pat') {
-        // 使用 Personal Access Token
-        return localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY);
-    } else {
-        // 使用 OAuth 流程
-        const params = parseQueryParams();
-        if (params.code) {
-            const clientSecret = localStorage.getItem(STORAGE_CLIENT_SECRET_KEY);
-            if (!clientSecret) {
-                alert('请先配置 GitHub Client Secret。点击"设置"按钮进行配置。');
-                return null;
-            }
-
-            try {
-                const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        client_id: CLIENT_ID,
-                        client_secret: clientSecret,
-                        code: params.code,
-                        redirect_uri: REDIRECT_URI
-                    })
-                });
-
-                const tokenData = await tokenResponse.json();
-                if (tokenData.access_token) {
-                    // 存储 token 并清理 URL
-                    sessionStorage.setItem('github_access_token', tokenData.access_token);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    return tokenData.access_token;
-                } else {
-                    alert('获取访问令牌失败：' + (tokenData.error_description || tokenData.error));
-                }
-            } catch (error) {
-                console.error('Token exchange failed:', error);
-                if (error.message && error.message.includes('Failed to fetch')) {
-                    alert('获取访问令牌失败：浏览器无法直接访问 GitHub 的 access_token 接口。\n请改用 Personal Access Token，或使用后端代理完成 OAuth 令牌交换。');
-                } else {
-                    alert('获取访问令牌时发生错误：' + error.message);
-                }
-            }
-        }
-
-        // 从 sessionStorage 获取已存储的 token
-        return sessionStorage.getItem('github_access_token');
+    // 先检查是否已存储 token
+    const storedToken = localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY);
+    if (storedToken) {
+        return storedToken;
     }
+
+    // 检查 URL 中是否有授权码
+    const params = parseQueryParams();
+    if (params.code) {
+        try {
+            // 调用 Cloudflare Pages Function 进行 token 交换
+            const response = await fetch(TOKEN_EXCHANGE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    code: params.code,
+                    client_id: CLIENT_ID,
+                    redirect_uri: REDIRECT_URI
+                })
+            });
+
+            const data = await response.json();
+            if (data.access_token) {
+                // 存储 token 并清理 URL
+                localStorage.setItem(STORAGE_GITHUB_TOKEN_KEY, data.access_token);
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return data.access_token;
+            } else {
+                alert('获取访问令牌失败：' + (data.error_description || data.error || '未知错误'));
+            }
+        } catch (error) {
+            console.error('Token exchange failed:', error);
+            alert('获取访问令牌时发生错误：' + error.message);
+        }
+    }
+
+    return null;
 }
 
 async function syncShortcutsToGithub() {
     try {
         const token = await getAccessToken();
         if (!token) {
-            const authMethod = localStorage.getItem(STORAGE_AUTH_METHOD_KEY) || 'pat';
-            if (authMethod === 'pat') {
-                alert('请先配置 Personal Access Token。点击"设置"按钮进行配置。');
-                showGithubSettings();
-            } else {
-                // 如果没有 token，开始登录流程
-                startGithubLogin();
-            }
+            // 如果没有 token，开始登录流程
+            startGithubLogin();
             return;
         }
 
@@ -400,54 +380,22 @@ async function loadShortcutsFromIssue() {
 }
 
 function startGithubLogin() {
-    const authMethod = localStorage.getItem(STORAGE_AUTH_METHOD_KEY) || 'pat';
-
-    if (authMethod === 'pat') {
-        alert('当前使用 Personal Access Token 模式，无需登录。请在设置中配置 PAT。');
-        showGithubSettings();
-        return;
-    }
-
-    const clientSecret = localStorage.getItem(STORAGE_CLIENT_SECRET_KEY);
-    if (!clientSecret) {
-        alert('请先配置 GitHub Client Secret。点击"设置"按钮进行配置。');
-        showGithubSettings();
-        return;
-    }
-
     const authUrl = `${AUTH_URL}?client_id=${encodeURIComponent(CLIENT_ID)}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&allow_signup=true`;
     window.location.href = authUrl;
 }
 
 function showGithubSettings() {
-    const currentAuthMethod = localStorage.getItem(STORAGE_AUTH_METHOD_KEY) || 'pat';
-
     const settingsHtml = `
         <div class="github-settings-modal">
             <div class="github-settings-content">
                 <h3>GitHub 设置</h3>
                 <div class="setting-field">
-                    <label>认证方式:</label>
-                    <select id="authMethodSelect">
-                        <option value="pat" ${currentAuthMethod === 'pat' ? 'selected' : ''}>Personal Access Token (推荐)</option>
-                        <option value="oauth" ${currentAuthMethod === 'oauth' ? 'selected' : ''}>OAuth 应用</option>
-                    </select>
-                    <small>Personal Access Token 更简单，无需配置 OAuth 应用</small>
-                </div>
-                <div class="setting-field" id="patField" style="${currentAuthMethod === 'pat' ? '' : 'display:none'}">
-                    <label>Personal Access Token:</label>
-                    <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxx" value="${localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY) || ''}">
-                    <small>去 <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings > Developer settings > Personal access tokens</a> 创建 token，需要 repo 权限（或 public_repo）。</small>
-                </div>
-                <div class="setting-field" id="oauthField" style="${currentAuthMethod === 'oauth' ? '' : 'display:none'}">
-                    <label>Client Secret:</label>
-                    <input type="password" id="clientSecretInput" placeholder="GitHub OAuth App Client Secret" value="${localStorage.getItem(STORAGE_CLIENT_SECRET_KEY) || ''}">
-                    <small>从 <a href="https://github.com/settings/developers" target="_blank">GitHub OAuth Apps</a> 获取 Client Secret</small>
+                    <p>使用 GitHub OAuth 登录，一次登录后 token 将保存到浏览器本地存储中。</p>
                 </div>
                 <div class="setting-field">
                     <label>Issue 号 (可选):</label>
                     <input type="text" id="issueNumberInput" placeholder="现有 Issue 号" value="${getIssueNumber() || ''}">
-                    <small>如果已有 Issue，可以手动输入号码</small>
+                    <small>如果已有 Issue，可以手动输入号码以继续编辑</small>
                 </div>
                 <div class="setting-actions">
                     <button class="primary-btn" id="saveGithubSettings">保存设置</button>
@@ -468,73 +416,26 @@ function showGithubSettings() {
     `;
     document.body.appendChild(modal);
 
-    // 认证方式切换
-    const authMethodSelect = document.getElementById('authMethodSelect');
-    const patField = document.getElementById('patField');
-    const oauthField = document.getElementById('oauthField');
-
-    authMethodSelect.addEventListener('change', () => {
-        if (authMethodSelect.value === 'pat') {
-            patField.style.display = '';
-            oauthField.style.display = 'none';
-        } else {
-            patField.style.display = 'none';
-            oauthField.style.display = '';
-        }
-    });
-
     // 绑定事件
     document.getElementById('saveGithubSettings').addEventListener('click', () => {
-        const authMethod = document.getElementById('authMethodSelect').value;
-        localStorage.setItem(STORAGE_AUTH_METHOD_KEY, authMethod);
-
-        if (authMethod === 'pat') {
-            const pat = document.getElementById('patInput').value.trim();
-            if (pat) {
-                localStorage.setItem(STORAGE_GITHUB_TOKEN_KEY, pat);
-            }
-        } else {
-            const clientSecret = document.getElementById('clientSecretInput').value.trim();
-            if (clientSecret) {
-                localStorage.setItem(STORAGE_CLIENT_SECRET_KEY, clientSecret);
-            }
-        }
-
         const issueNumber = document.getElementById('issueNumberInput').value.trim();
         if (issueNumber) {
             setIssueNumber(issueNumber);
         }
-
         document.body.removeChild(modal);
         updateLoginStatus();
     });
 
     document.getElementById('testGithubConnection').addEventListener('click', async () => {
-        const authMethod = document.getElementById('authMethodSelect').value;
-        let token = null;
-
-        if (authMethod === 'pat') {
-            token = document.getElementById('patInput').value.trim();
-        } else {
-            // 对于OAuth，需要先登录，这里只是测试配置是否正确
-            alert('OAuth 模式请先保存设置，然后点击"连接 GitHub"进行测试。');
-            return;
-        }
-
+        const token = localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY);
         if (!token) {
-            alert('请输入访问令牌');
+            alert('未登录。请先点击"连接 GitHub"进行登录。');
             return;
         }
 
         try {
-            // 临时设置 token 来测试
-            const originalToken = localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY);
-            localStorage.setItem(STORAGE_GITHUB_TOKEN_KEY, token);
-
             const user = await githubApiRequest('/user');
             alert(`连接成功！用户: ${user.login}`);
-            localStorage.setItem(STORAGE_GITHUB_TOKEN_KEY, originalToken);
-
         } catch (error) {
             alert('连接测试失败：' + error.message);
         }
@@ -573,7 +474,6 @@ async function updateLoginStatus() {
     const profileStatus = document.getElementById('profileStatus');
     const oauthContent = document.getElementById('oauthContent');
 
-    const authMethod = localStorage.getItem(STORAGE_AUTH_METHOD_KEY) || 'pat';
     const token = await getAccessToken();
     const issueNumber = getIssueNumber();
 
@@ -581,7 +481,7 @@ async function updateLoginStatus() {
         profileStatus.textContent = 'GitHub 已连接';
         oauthContent.innerHTML = `
             <div class="oauth-badge">已连接到 GitHub</div>
-            <p>认证方式: ${authMethod === 'pat' ? 'Personal Access Token' : 'OAuth 应用'}</p>
+            <p>认证方式: OAuth 应用</p>
             <p>数据将同步到 GitHub Issue</p>
             ${issueNumber ? `<p>Issue 号: <strong>${issueNumber}</strong></p>` : '<p>尚未创建 Issue</p>'}
             <div class="sync-actions">
@@ -590,7 +490,7 @@ async function updateLoginStatus() {
                 <button class="secondary-btn" id="logoutGithubButton" type="button">断开连接</button>
             </div>
         `;
-    } else if (params.code && authMethod === 'oauth') {
+    } else if (params.code) {
         profileStatus.textContent = '正在获取访问令牌...';
         oauthContent.innerHTML = `
             <div class="oauth-badge">正在处理授权</div>
@@ -602,9 +502,9 @@ async function updateLoginStatus() {
         profileStatus.textContent = '未连接';
         oauthContent.innerHTML = `
             <p>连接 GitHub 账号以同步常用网站数据到 Issue。</p>
-            <p>Issue 是 GitHub 仓库内用于问题和任务的文本存储单元。</p>
+            <p>一次登录后，token 将保存到浏览器中，下次打开时自动连接。</p>
             <div class="sync-actions">
-                ${authMethod === 'oauth' ? '<button class="github-login-button" id="githubLoginButton" type="button">连接 GitHub</button>' : ''}
+                <button class="github-login-button" id="githubLoginButton" type="button">连接 GitHub</button>
                 <button class="secondary-btn" id="githubSettingsButton" type="button">设置</button>
             </div>
         `;
@@ -635,12 +535,7 @@ function bindGithubSyncButton() {
 
     if (logoutButton) {
         logoutButton.addEventListener('click', () => {
-            const authMethod = localStorage.getItem(STORAGE_AUTH_METHOD_KEY) || 'pat';
-            if (authMethod === 'pat') {
-                localStorage.removeItem(STORAGE_GITHUB_TOKEN_KEY);
-            } else {
-                sessionStorage.removeItem('github_access_token');
-            }
+            localStorage.removeItem(STORAGE_GITHUB_TOKEN_KEY);
             localStorage.removeItem(STORAGE_ISSUE_NUMBER_KEY);
             updateLoginStatus();
         });
