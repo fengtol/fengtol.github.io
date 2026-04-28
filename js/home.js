@@ -2,6 +2,162 @@
  * home 界面的js代码文件
  */
 
+// 数据结构
+// pageData moved to js/pageData.js
+
+
+// 生成热门项目的HTML
+function generateHotbar() {
+    const container = document.querySelector('.hotbar-item-list-container');
+    container.innerHTML = pageData.hotItems.map(item => `
+        <div class="hot-item">
+            <a target="_blank" href="${item.href}"><img class="hot-icon-img" src="${item.img}"></a>
+            <div class="hot-icon-desc">${item.desc}</div>
+        </div>
+    `).join('');
+}
+
+// 生成主项目列表的HTML
+function generateMainItems() {
+    const container = document.querySelector('.main-item-list-container');
+    container.innerHTML = pageData.mainItems.map(item => {
+        if (item.length === 2) {
+            return `<div class="main-item"><a class="main-item-url-text" target="_blank" href="${item[0]}">${item[1]}</a></div>`;
+        } else {
+            return `<div class="main-item">
+                <a class="main-item-url-text" target="_blank" href="${item[0]}">${item[1]}</a>
+                <span class="main-item-split-text">·</span>
+                <a class="main-item-url-text" target="_blank" href="${item[2]}">${item[3]}</a>
+            </div>`;
+        }
+    }).join('');
+}
+
+// 生成非主项目列表的HTML
+function generateNonmainItems() {
+    const container = document.querySelector('.nonmain-item-list-container');
+    container.innerHTML = pageData.nonmainItems.map(item => `
+        <div class="nonmain-item">
+            <a class="nonmain-item-text" target="_blank" href="${item.href}">${item.text}</a>
+        </div>
+    `).join('');
+}
+
+// 生成轮播图的HTML
+function generateCarousel() {
+    const container = document.querySelector('#turnplaypicture ul.items');
+    container.innerHTML = pageData.carouselItems.map(item => `
+        <li><a target="_blank" href="${item.href}" title=""><img src="${item.img}"></a></li>
+    `).join('');
+}
+
+// 生成页面链接栏的HTML
+function groupItems(items, size = 5) {
+    return items.reduce((acc, item, index) => {
+        if (index % size === 0) acc.push([]);
+        acc[acc.length - 1].push(item);
+        return acc;
+    }, []);
+}
+
+function renderOpenCard(item) {
+    return `
+        <div class="page-link-row-bar-open-content-bar-item-container">
+            <div class="page-link-row-bar-open-content-bar-item-head-container">
+                <div class="page-link-row-bar-open-content-bar-item-head-bg"></div>
+                <div class="page-link-row-bar-open-content-bar-item-head-more">>></div>
+                <a class="page-link-row-bar-open-content-bar-item-head-title" target="_blank" href="${item.href}">${item.title}</a>
+            </div>
+            <div class="page-link-row-bar-open-content-bar-item-body-container">
+                <div class="page-link-row-bar-open-content-bar-item-body-text">${item.desc || ''}</div>
+            </div>
+        </div>
+    `;
+}
+
+function renderOpenRow(group) {
+    return `
+        <div class="page-link-row-bar-open-content-bar-container">
+            ${group.map(renderOpenCard).join('')}
+        </div>
+    `;
+}
+
+function renderOpenContent(items) {
+    return groupItems(items, 4).map(renderOpenRow).join('');
+}
+
+function renderCollapsedLink(link) {
+    return `
+        <div class="barrage-link-item-container">
+            <a class="barrage-link-item-text" target="_blank" href="${link.href}">${link.title}</a>
+        </div>
+    `;
+}
+
+function renderCollapsedContent(items) {
+    return items.filter(item => item.isShort).map(renderCollapsedLink).join('');
+}
+
+function renderPageSection(section, index) {
+    const closeId = `close_${index + 1}`;
+    const openId = `open_${index + 1}`;
+    const defaultOpen = index === 0;
+
+    const collapsedHtml = `
+        <div id="${closeId}" class="page-link-row-bar"${defaultOpen ? ' style="display: none;"' : ''}>
+            <div class="barrage-container" onclick="openShutManager('${closeId}','${openId}')">
+                <div class="barrage-rect-bg"></div>
+                <div class="barrage-circle-bg"></div>
+                <div class="barrage-text">${section.title}</div>
+            </div>
+            ${renderCollapsedContent(section.items)}
+        </div>
+    `;
+
+    const openHtml = `
+        <div id="${openId}" class="page-link-row-bar-open"${defaultOpen ? '' : ' style="display: none;"'}>
+            <div class="page-link-row-bar-open-menu-plate">
+                <div class="page-link-row-bar-open-menu-container" onclick="openShutManager('${openId}','${closeId}')">
+                    <div class="page-link-row-bar-open-menu-rect-bg"></div>
+                    <div class="page-link-row-bar-open-menu-circle-bg"></div>
+                    <div class="page-link-row-bar-open-menu-text">${section.title}</div>
+                </div>
+            </div>
+            <div class="page-link-row-bar-open-content-plate">
+                ${renderOpenContent(section.items)}
+            </div>
+        </div>
+    `;
+
+    return defaultOpen ? `${openHtml}${collapsedHtml}` : `${collapsedHtml}${openHtml}`;
+}
+
+function generatePageLinkBar() {
+    const container = document.querySelector('.page-link-bar-block');
+    container.innerHTML = pageData.pageLinkSections.map((section, index) => {
+        const sectionHtml = renderPageSection(section, index);
+        const needSplit = (index + 1) % 5 === 0 && index < pageData.pageLinkSections.length - 1;
+        return sectionHtml + (needSplit ? `
+            <div class="page-link-bar-block-split">
+                <div class="page-link-bar-block-split-bg"></div>
+            </div>
+        ` : '');
+    }).join('');
+}
+
+// 初始化页面
+function initPage() {
+    generateHotbar();
+    generateMainItems();
+    generateNonmainItems();
+    generateCarousel();
+    generatePageLinkBar();
+}
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', initPage);
+
 //设为首页
 function SetHome(obj,url){
 	try{
