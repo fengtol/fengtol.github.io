@@ -1,7 +1,7 @@
 const CLIENT_ID = 'Ov23lifw4crbtBHZ1ZMH';
 const REDIRECT_URI = window.location.origin + '/callback.html';
 const AUTH_URL = 'https://github.com/login/oauth/authorize';
-const TOKEN_EXCHANGE_URL = '/.netlify/functions/exchange-token'; // 改为你的 Cloudflare Pages 后端路径，例如 /api/exchange-token
+const TOKEN_EXCHANGE_URL = '/api/exchange-token'; // 改为你的 Cloudflare Pages 后端路径，例如 /api/exchange-token
 const SCOPES = ['read:user', 'user:email', 'repo'];
 const GITHUB_REPO_OWNER = 'fengtol';
 const GITHUB_REPO_NAME = 'fengtol.github.io';

@@ -1,0 +1,8 @@
+name = "myhome"
+compatibility_date = "2026-04-28"
+
+# 关键：告诉 Cloudflare 这是纯静态站点
+pages_build_output_dir = "."
+
+# 关闭自动框架检测
+send_metrics = false
