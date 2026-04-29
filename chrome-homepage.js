@@ -473,12 +473,34 @@ async function updateLoginStatus() {
     const params = parseQueryParams();
     const profileStatus = document.getElementById('profileStatus');
     const oauthContent = document.getElementById('oauthContent');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const loginButton = document.getElementById('githubLoginButton');
 
     const token = await getAccessToken();
     const issueNumber = getIssueNumber();
 
     if (token) {
-        profileStatus.textContent = 'GitHub 已连接';
+        let user = null;
+        try {
+            user = await githubApiRequest('/user');
+        } catch (error) {
+            console.warn('无法获取 GitHub 用户信息：', error);
+        }
+
+        if (profileAvatar) {
+            if (user && user.avatar_url) {
+                profileAvatar.querySelector('img').src = user.avatar_url;
+                profileAvatar.style.display = 'block';
+            } else {
+                profileAvatar.style.display = 'none';
+            }
+        }
+
+        if (loginButton) {
+            loginButton.style.display = 'none';
+        }
+
+        profileStatus.textContent = user ? `已登录：${user.login}` : 'GitHub 已连接';
         oauthContent.innerHTML = `
             <div class="oauth-badge">已连接到 GitHub</div>
             <p>认证方式: OAuth 应用</p>
@@ -491,6 +513,9 @@ async function updateLoginStatus() {
             </div>
         `;
     } else if (params.code) {
+        if (profileAvatar) profileAvatar.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'none';
+
         profileStatus.textContent = '正在获取访问令牌...';
         oauthContent.innerHTML = `
             <div class="oauth-badge">正在处理授权</div>
@@ -499,16 +524,20 @@ async function updateLoginStatus() {
         // 尝试获取 token
         setTimeout(() => updateLoginStatus(), 1000);
     } else {
+        if (profileAvatar) profileAvatar.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'inline-flex';
+
         profileStatus.textContent = '未连接';
         oauthContent.innerHTML = `
             <p>连接 GitHub 账号以同步常用网站数据到 Issue。</p>
             <p>一次登录后，token 将保存到浏览器中，下次打开时自动连接。</p>
             <div class="sync-actions">
-                <button class="github-login-button" id="githubLoginButton" type="button">连接 GitHub</button>
                 <button class="secondary-btn" id="githubSettingsButton" type="button">设置</button>
             </div>
         `;
     }
+
+    bindGithubSyncButton();
 }
 
 function bindGithubSyncButton() {
@@ -539,10 +568,6 @@ function bindGithubSyncButton() {
             localStorage.removeItem(STORAGE_ISSUE_NUMBER_KEY);
             updateLoginStatus();
         });
-    }
-
-    if (loginButton) {
-        loginButton.addEventListener('click', startGithubLogin);
     }
 
     if (settingsButton) {
@@ -577,7 +602,11 @@ async function initPage() {
     renderHistoryCards();
     await updateLoginStatus();
     initSearch();
-    bindGithubSyncButton();
+
+    const loginButton = document.getElementById('githubLoginButton');
+    if (loginButton) {
+        loginButton.addEventListener('click', startGithubLogin);
+    }
 
     // 尝试从 GitHub Issue 加载数据
     await loadShortcutsFromIssue();
