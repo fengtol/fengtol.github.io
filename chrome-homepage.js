@@ -16,10 +16,10 @@ const GITHUB_API_BASE = 'https://api.github.com';
 const MAX_SEARCH_SUGGESTIONS = 8;
 
 const SEARCH_ENGINES = [
-    { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=' },
-    { id: 'bing', name: 'Bing', url: 'https://cn.bing.com/search?q=' },
-    { id: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd=' },
-    { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' }
+    { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=', icon: 'G' },
+    { id: 'bing', name: 'Bing', url: 'https://cn.bing.com/search?q=', icon: 'B' },
+    { id: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd=', icon: '百' },
+    { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=', icon: '🦆' }
 ];
 
 const DEFAULT_SHORTCUTS = [
@@ -110,11 +110,15 @@ function renderSearchEngineSelector() {
     const container = document.getElementById('searchEngineSelector');
     const engine = getStoredSearchEngine();
     container.innerHTML = `
+        <span class="search-engine-icon">${engine.icon}</span>
         <span class="search-engine-selected">${engine.name}</span>
         <span class="search-engine-arrow">▾</span>
         <div class="search-engine-dropdown" id="searchEngineDropdown" style="display:none;">
             ${SEARCH_ENGINES.map(item => `
-                <div class="search-engine-option" data-engine="${item.id}">${item.name}</div>
+                <div class="search-engine-option" data-engine="${item.id}">
+                    <span class="search-engine-icon">${item.icon}</span>
+                    <span>${item.name}</span>
+                </div>
             `).join('')}
         </div>
     `;
@@ -626,9 +630,9 @@ async function updateLoginStatus() {
             logoutButton.style.display = 'inline-flex';
         }
 
-        profileStatus.textContent = user ? `已登录：${user.login}` : 'GitHub 已连接';
+        profileStatus.textContent = user ? '已登录' : '已连接';
         if (profileDropdownText) {
-            profileDropdownText.textContent = issueNumber ? `Issue 号 ${issueNumber}` : '已连接 GitHub，尚未创建 Issue。';
+            profileDropdownText.textContent = user ? `当前账号：${user.login}` : issueNumber ? `Issue 号 ${issueNumber}` : '已连接 GitHub，尚未创建 Issue。';
         }
         oauthContent.innerHTML = `
             <div class="oauth-badge">已连接到 GitHub</div>
