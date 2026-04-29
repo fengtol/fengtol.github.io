@@ -16,14 +16,13 @@
                     <div class="brand-circle brand-yellow"></div>
                     <div class="brand-circle brand-green"></div>
                 </div>
-                <div class="brand-text">My  Home</div>
+                <div class="profile-avatar" id="profileAvatar" style="display:none; margin-left: 10px;">
+                    <img src="" alt="GitHub 头像">
+                </div>
             </div>
 
             <div class="profile-panel" id="profilePanel">
                 <button class="profile-toggle" id="profileToggle" type="button">
-                    <div class="profile-avatar" id="profileAvatar" style="display:none;">
-                        <img src="" alt="GitHub 头像">
-                    </div>
                     <span class="profile-label" id="profileStatus">未连接</span>
                     <span class="profile-toggle-arrow">▾</span>
                 </button>
@@ -39,9 +38,8 @@
 
         <main class="hero-section">
             <div class="hero-card">
-                <div class="hero-title">你想去哪?</div>
-                <div class="search-engine-selector hidden" id="searchEngineSelector" style="display:none;"></div>
                 <form id="searchForm" class="search-form">
+                    <div class="search-engine-selector" id="searchEngineSelector"></div>
                     <input id="searchInput" class="search-input" type="search" placeholder="搜索或输入网址" autocomplete="off">
                     <button class="search-submit" type="submit">搜索</button>
                 </form>
