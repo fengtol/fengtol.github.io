@@ -13,6 +13,7 @@ const STORAGE_SHORTCUTS_KEY = 'chrome_homepage_shortcuts';
 const STORAGE_ISSUE_NUMBER_KEY = 'chrome_homepage_issue_number';
 const STORAGE_GITHUB_TOKEN_KEY = 'chrome_homepage_github_token';
 const GITHUB_API_BASE = 'https://api.github.com';
+const MAX_SEARCH_SUGGESTIONS = 8;
 
 const SEARCH_ENGINES = [
     { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=' },
