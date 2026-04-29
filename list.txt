@@ -1,4 +1,0 @@
-G:\fengtol.github.io\Main\Main.exe
-G:\fengtol.github.io\Main\base_library.zip
-G:\fengtol.github.io\Main\host.ini
-G:\fengtol.github.io\Main\Upgrade.exe
