@@ -73,10 +73,69 @@ body {
 }
 
 .profile-panel {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(102, 126, 234, 0.18);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.profile-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.14);
+}
+
+.profile-label {
+    font-size: 14px;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.profile-toggle-arrow {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.profile-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: 260px;
+    padding: 14px;
+    border-radius: 22px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 40px rgba(60, 64, 67, 0.12);
+    z-index: 20;
+    display: none;
+}
+
+.profile-dropdown-text {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.profile-dropdown-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-engine-selector.hidden {
+    display: none !important;
 }
 
 .login-button {
@@ -593,6 +652,10 @@ body {
     gap: 8px;
     margin-top: 12px;
     flex-wrap: wrap;
+}
+
+.oauth-card {
+    padding: 24px;
 }
 
 @media (max-width: 640px) {

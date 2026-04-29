@@ -139,71 +139,6 @@ function renderSearchEngineSelector() {
 
     updateSearchPlaceholder();
 }
-function getSearchSuggestions(query) {
-    const lowerQuery = query.toLowerCase();
-    const shortcuts = getShortcuts().map(item => ({
-        title: item.title,
-        url: item.url,
-        description: item.description || '快捷网站'
-    }));
-    const history = getVisitHistory().map(item => ({
-        title: item.title,
-        url: item.url,
-        description: `${item.count} 次访问`
-    }));
-
-    const combined = [...shortcuts, ...history];
-    const filtered = combined.filter(item => {
-        if (!query) return true;
-        return item.title.toLowerCase().includes(lowerQuery) || item.url.toLowerCase().includes(lowerQuery);
-    });
-
-    return filtered.slice(0, MAX_SEARCH_SUGGESTIONS);
-}
-
-function renderSearchSuggestions(query) {
-    const container = document.getElementById('searchSuggestions');
-    if (!container) return;
-
-    const suggestions = getSearchSuggestions(query);
-    activeSuggestions = suggestions;
-    currentSuggestionIndex = -1;
-
-    if (!suggestions.length) {
-        container.style.display = 'none';
-        container.innerHTML = '';
-        return;
-    }
-
-    container.style.display = 'block';
-    container.innerHTML = `
-        <div class="suggestion-header">匹配到 ${suggestions.length} 条推荐结果，使用 ↑↓ 选择，回车打开。</div>
-        ${suggestions.map((item, index) => `
-            <div class="search-suggestion-item" data-index="${index}" tabindex="0">
-                <div>
-                    <strong>${item.title}</strong>
-                    <div class="search-suggestion-meta">${item.description}</div>
-                </div>
-                <span class="search-suggestion-meta">${item.url}</span>
-            </div>
-        `).join('')}
-    `;
-
-    container.querySelectorAll('.search-suggestion-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const index = Number(item.dataset.index);
-            selectSearchSuggestion(index);
-        });
-        item.addEventListener('keydown', event => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const index = Number(item.dataset.index);
-                selectSearchSuggestion(index);
-            }
-        });
-    });
-}
-
 function hideSearchSuggestions() {
     const container = document.getElementById('searchSuggestions');
     if (!container) return;
@@ -233,6 +168,7 @@ function updateSearchPlaceholder() {
 }
 
 function getSearchSuggestions(query) {
+    if (!query || !query.trim()) return [];
     const lowerQuery = query.toLowerCase();
     const shortcuts = getShortcuts().map(item => ({
         title: item.title,
@@ -247,7 +183,6 @@ function getSearchSuggestions(query) {
 
     const combined = [...shortcuts, ...history];
     const filtered = combined.filter(item => {
-        if (!query) return true;
         return item.title.toLowerCase().includes(lowerQuery) || item.url.toLowerCase().includes(lowerQuery);
     });
 
@@ -658,9 +593,11 @@ function parseQueryParams() {
 async function updateLoginStatus() {
     const params = parseQueryParams();
     const profileStatus = document.getElementById('profileStatus');
+    const profileDropdownText = document.getElementById('profileDropdownText');
     const oauthContent = document.getElementById('oauthContent');
     const profileAvatar = document.getElementById('profileAvatar');
     const loginButton = document.getElementById('githubLoginButton');
+    const logoutButton = document.getElementById('logoutGithubButton');
 
     const token = await getAccessToken();
     const issueNumber = getIssueNumber();
@@ -685,18 +622,18 @@ async function updateLoginStatus() {
         if (loginButton) {
             loginButton.style.display = 'none';
         }
+        if (logoutButton) {
+            logoutButton.style.display = 'inline-flex';
+        }
 
         profileStatus.textContent = user ? `已登录：${user.login}` : 'GitHub 已连接';
+        if (profileDropdownText) {
+            profileDropdownText.textContent = issueNumber ? `Issue 号 ${issueNumber}` : '已连接 GitHub，尚未创建 Issue。';
+        }
         oauthContent.innerHTML = `
             <div class="oauth-badge">已连接到 GitHub</div>
-            <p>认证方式: OAuth 应用</p>
-            <p>数据将同步到 GitHub Issue</p>
-            ${issueNumber ? `<p>Issue 号: <strong>${issueNumber}</strong></p>` : '<p>尚未创建 Issue</p>'}
-            <div class="sync-actions">
-                <button class="github-sync-button" id="syncGithubButton" type="button">同步到 Issue</button>
-                <button class="secondary-btn" id="loadFromIssueButton" type="button">从 Issue 加载</button>
-                <button class="secondary-btn" id="logoutGithubButton" type="button">断开连接</button>
-            </div>
+            <p>${user ? `账号：${user.login}` : 'GitHub 已连接'}</p>
+            ${issueNumber ? `<p>Issue 号：<strong>${issueNumber}</strong></p>` : '<p>尚未创建 Issue</p>'}
         `;
     } else if (params.code) {
         if (profileAvatar) profileAvatar.style.display = 'none';
@@ -712,14 +649,14 @@ async function updateLoginStatus() {
     } else {
         if (profileAvatar) profileAvatar.style.display = 'none';
         if (loginButton) loginButton.style.display = 'inline-flex';
+        if (logoutButton) logoutButton.style.display = 'none';
 
         profileStatus.textContent = '未连接';
+        if (profileDropdownText) {
+            profileDropdownText.textContent = '点击登录 GitHub 同步常用网站。';
+        }
         oauthContent.innerHTML = `
-            <p>连接 GitHub 账号以同步常用网站数据到 Issue。</p>
-            <p>一次登录后，token 将保存到浏览器中，下次打开时自动连接。</p>
-            <div class="sync-actions">
-                <button class="secondary-btn" id="githubSettingsButton" type="button">设置</button>
-            </div>
+            <p>当前状态：未连接</p>
         `;
     }
 
@@ -791,7 +728,8 @@ function initSearch() {
     });
 
     searchInput.addEventListener('focus', () => {
-        renderSearchSuggestions(searchInput.value.trim());
+        const query = searchInput.value.trim();
+        if (query) renderSearchSuggestions(query);
     });
 
     searchInput.addEventListener('keydown', event => {
@@ -825,8 +763,13 @@ function initSearch() {
 
     document.addEventListener('click', event => {
         const target = event.target;
+        const profileDropdown = document.getElementById('profileDropdown');
+        const profileToggle = document.getElementById('profileToggle');
         if (suggestionsContainer && !suggestionsContainer.contains(target) && target !== searchInput) {
             hideSearchSuggestions();
+        }
+        if (profileDropdown && profileToggle && !profileDropdown.contains(target) && target !== profileToggle) {
+            profileDropdown.style.display = 'none';
         }
     });
 
@@ -864,6 +807,17 @@ async function initPage() {
     const loginButton = document.getElementById('githubLoginButton');
     if (loginButton) {
         loginButton.addEventListener('click', startGithubLogin);
+    }
+
+    const profileToggle = document.getElementById('profileToggle');
+    if (profileToggle) {
+        profileToggle.addEventListener('click', event => {
+            event.stopPropagation();
+            const profileDropdown = document.getElementById('profileDropdown');
+            if (profileDropdown) {
+                profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+            }
+        });
     }
 
     // 尝试从 GitHub Issue 加载数据

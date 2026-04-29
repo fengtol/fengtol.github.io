@@ -20,21 +20,27 @@
             </div>
 
             <div class="profile-panel" id="profilePanel">
-                <div class="profile-avatar" id="profileAvatar" style="display:none;">
-                    <img src="" alt="GitHub 头像">
+                <button class="profile-toggle" id="profileToggle" type="button">
+                    <div class="profile-avatar" id="profileAvatar" style="display:none;">
+                        <img src="" alt="GitHub 头像">
+                    </div>
+                    <span class="profile-label" id="profileStatus">未连接</span>
+                    <span class="profile-toggle-arrow">▾</span>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown" style="display:none;">
+                    <div class="profile-dropdown-text" id="profileDropdownText">点击登录 GitHub 同步常用网站。</div>
+                    <div class="profile-dropdown-actions">
+                        <button class="login-button" id="githubLoginButton" type="button">登录 GitHub</button>
+                        <button class="secondary-btn" id="logoutGithubButton" type="button" style="display:none;">断开连接</button>
+                    </div>
                 </div>
-                <button class="login-button" id="githubLoginButton" type="button">登录 GitHub</button>
-                <div class="profile-status" id="profileStatus">未登录</div>
             </div>
         </header>
 
         <main class="hero-section">
             <div class="hero-card">
                 <div class="hero-title">你想去哪?</div>
-                <div class="search-meta-row">
-                    <div class="search-engine-label">搜索引擎：</div>
-                    <div class="search-engine-selector" id="searchEngineSelector"></div>
-                </div>
+                <div class="search-engine-selector hidden" id="searchEngineSelector" style="display:none;"></div>
                 <form id="searchForm" class="search-form">
                     <input id="searchInput" class="search-input" type="search" placeholder="搜索或输入网址" autocomplete="off">
                     <button class="search-submit" type="submit">搜索</button>
@@ -71,8 +77,7 @@
         <section class="oauth-card" id="oauthCard">
             <div class="section-title">GitHub 登录状态</div>
             <div class="oauth-content" id="oauthContent">
-                <p>点击「登录 GitHub」后，页面将跳转 GitHub 授权。</p>
-                <p>登录成功后，页面会在当前仓库中创建或更新一个 Issue 来保存你的常用网站数据。</p>
+                <p>当前状态：未连接</p>
             </div>
         </section>
     </div>
