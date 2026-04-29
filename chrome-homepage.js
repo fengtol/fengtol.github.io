@@ -34,6 +34,33 @@ const DEFAULT_SHORTCUTS = [
 ];
 
 let currentShortcuts = [];
+let activeSuggestions = [];
+let currentSuggestionIndex = -1;
+
+function showToast(message, type = 'info', duration = 3500) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('visible'));
+
+    setTimeout(() => {
+        toast.classList.remove('visible');
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    }, duration);
+}
+
+function showSuccessToast(message) {
+    showToast(message, 'success');
+}
+
+function showErrorToast(message) {
+    showToast(message, 'error');
+}
 
 function loadShortcuts() {
     const raw = localStorage.getItem(STORAGE_SHORTCUTS_KEY);
@@ -236,28 +263,6 @@ function renderSearchSuggestions(query) {
     });
 }
 
-function hideSearchSuggestions() {
-    const container = document.getElementById('searchSuggestions');
-    if (!container) return;
-    container.style.display = 'none';
-}
-
-function selectSearchSuggestion(index) {
-    const suggestion = activeSuggestions[index];
-    if (!suggestion) return;
-    recordVisit(suggestion.url, suggestion.title);
-    window.open(suggestion.url, '_blank');
-}
-
-function highlightSuggestion(index) {
-    const container = document.getElementById('searchSuggestions');
-    if (!container) return;
-    const items = container.querySelectorAll('.search-suggestion-item');
-    items.forEach((item, itemIndex) => {
-        item.classList.toggle('active', itemIndex === index);
-    });
-}
-
 function renderShortcuts() {
     const grid = document.getElementById('shortcutGrid');
     const shortcuts = getShortcuts();
@@ -417,11 +422,11 @@ async function getAccessToken() {
                 window.history.replaceState({}, document.title, window.location.pathname);
                 return data.access_token;
             } else {
-                alert('获取访问令牌失败：' + (data.error_description || data.error || '未知错误'));
+                showErrorToast('获取访问令牌失败：' + (data.error_description || data.error || '未知错误'));
             }
         } catch (error) {
             console.error('Token exchange failed:', error);
-            alert('获取访问令牌时发生错误：' + error.message);
+            showErrorToast('获取访问令牌时发生错误：' + error.message);
         }
     }
 
@@ -467,16 +472,15 @@ async function syncShortcutsToGithub() {
             setIssueNumber(response.number);
         }
 
-        alert(`常用网站数据已成功同步到 GitHub Issue！\nIssue 号: ${response.number}\nURL: ${response.html_url}`);
-
+        showSuccessToast(`常用网站已成功同步到 GitHub Issue #${response.number}`);
     } catch (error) {
         console.error('GitHub sync error:', error);
         if (error.message.includes('Bad credentials')) {
-            alert('GitHub 授权已过期，请重新登录');
+            showErrorToast('GitHub 授权已过期，请重新登录');
             sessionStorage.removeItem('github_access_token');
             startGithubLogin();
         } else {
-            alert('同步失败：' + error.message);
+            showErrorToast('同步失败：' + error.message);
         }
     }
 }
@@ -554,15 +558,15 @@ function showGithubSettings() {
     document.getElementById('testGithubConnection').addEventListener('click', async () => {
         const token = localStorage.getItem(STORAGE_GITHUB_TOKEN_KEY);
         if (!token) {
-            alert('未登录。请先点击"连接 GitHub"进行登录。');
+            showErrorToast('未登录。请先点击“连接 GitHub”进行登录。');
             return;
         }
 
         try {
             const user = await githubApiRequest('/user');
-            alert(`连接成功！用户: ${user.login}`);
+            showSuccessToast(`连接成功！用户: ${user.login}`);
         } catch (error) {
-            alert('连接测试失败：' + error.message);
+            showErrorToast('连接测试失败：' + error.message);
         }
     });
 
@@ -682,9 +686,9 @@ function bindGithubSyncButton() {
         loadButton.addEventListener('click', async () => {
             const success = await loadShortcutsFromIssue();
             if (success) {
-                alert('已从 GitHub Issue 加载常用网站数据！');
+                showSuccessToast('已从 GitHub Issue 加载常用网站数据！');
             } else {
-                alert('从 Issue 加载数据失败，请检查 Issue 号和网络连接。');
+                showErrorToast('从 Issue 加载数据失败，请检查 Issue 号和网络连接。');
             }
         });
     }

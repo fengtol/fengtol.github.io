@@ -77,9 +77,15 @@
             <div class="oauth-content" id="oauthContent">
                 <p>当前状态：未连接</p>
             </div>
+            <div class="sync-actions">
+                <button class="github-sync-button" id="syncGithubButton" type="button">同步到 Issue</button>
+                <button class="secondary-btn" id="loadFromIssueButton" type="button">从 Issue 加载</button>
+                <button class="secondary-btn" id="githubSettingsButton" type="button">GitHub 设置</button>
+            </div>
         </section>
     </div>
 
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
     <script src="chrome-homepage.js?v=20260429"></script>
 </body>
 </html>
