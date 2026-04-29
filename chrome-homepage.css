@@ -201,6 +201,67 @@ body {
     z-index: 1;
 }
 
+/* 平板优化 (768px 到 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .search-form {
+        width: 100%;
+    }
+}
+
+/* 移动端优化 (≤768px) */
+@media (max-width: 768px) {
+    .hero-card {
+        padding: 24px 16px;
+    }
+    
+    .search-form {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        width: 100%;
+    }
+    
+    .search-engine-selector {
+        grid-column: 1 / -1;
+    }
+    
+    .search-input {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .search-submit {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+/* 超小屏幕优化 (≤480px) */
+@media (max-width: 480px) {
+    .hero-card {
+        padding: 20px 12px;
+    }
+    
+    .search-form {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .search-engine-selector {
+        grid-column: 1 / -1;
+    }
+    
+    .search-input {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+    
+    .search-submit {
+        padding: 12px 14px;
+        font-size: 14px;
+        width: 100%;
+    }
+}
+
 .hero-title {
     font-size: clamp(34px, 5vw, 56px);
     font-weight: 700;
@@ -312,7 +373,9 @@ body {
 .search-suggestions {
     position: absolute;
     left: 50%;
+    top: 100%;
     transform: translateX(-50%);
+    margin-top: 12px;
     width: min(560px, 100%);
     max-width: 100%;
     border-radius: 28px;
@@ -359,7 +422,6 @@ body {
 
 .search-input {
     width: 100%;
-    min-width: 220px;
     padding: 14px 20px;
     border: 2px solid transparent;
     border-radius: 28px;
@@ -382,7 +444,6 @@ body {
 }
 
 .search-submit {
-    min-width: 140px;
     border: none;
     border-radius: 28px;
     padding: 14px 28px;
@@ -393,6 +454,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: var(--shadow-sm);
+    white-space: nowrap;
 }
 
 .search-submit:hover {
