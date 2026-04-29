@@ -119,17 +119,202 @@ function renderSearchEngineSelector() {
     `;
 
     const dropdown = container.querySelector('.search-engine-dropdown');
+    const options = container.querySelectorAll('.search-engine-option');
+
     container.addEventListener('click', event => {
         event.stopPropagation();
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        if (dropdown) {
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
     });
 
-    container.querySelectorAll('.search-engine-option').forEach(option => {
+    options.forEach(option => {
         option.addEventListener('click', event => {
             event.stopPropagation();
             setStoredSearchEngine(option.dataset.engine);
-            dropdown.style.display = 'none';
+            if (dropdown) dropdown.style.display = 'none';
         });
+    });
+
+    updateSearchPlaceholder();
+}
+function getSearchSuggestions(query) {
+    const lowerQuery = query.toLowerCase();
+    const shortcuts = getShortcuts().map(item => ({
+        title: item.title,
+        url: item.url,
+        description: item.description || '快捷网站'
+    }));
+    const history = getVisitHistory().map(item => ({
+        title: item.title,
+        url: item.url,
+        description: `${item.count} 次访问`
+    }));
+
+    const combined = [...shortcuts, ...history];
+    const filtered = combined.filter(item => {
+        if (!query) return true;
+        return item.title.toLowerCase().includes(lowerQuery) || item.url.toLowerCase().includes(lowerQuery);
+    });
+
+    return filtered.slice(0, MAX_SEARCH_SUGGESTIONS);
+}
+
+function renderSearchSuggestions(query) {
+    const container = document.getElementById('searchSuggestions');
+    if (!container) return;
+
+    const suggestions = getSearchSuggestions(query);
+    activeSuggestions = suggestions;
+    currentSuggestionIndex = -1;
+
+    if (!suggestions.length) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+
+    container.style.display = 'block';
+    container.innerHTML = `
+        <div class="suggestion-header">匹配到 ${suggestions.length} 条推荐结果，使用 ↑↓ 选择，回车打开。</div>
+        ${suggestions.map((item, index) => `
+            <div class="search-suggestion-item" data-index="${index}" tabindex="0">
+                <div>
+                    <strong>${item.title}</strong>
+                    <div class="search-suggestion-meta">${item.description}</div>
+                </div>
+                <span class="search-suggestion-meta">${item.url}</span>
+            </div>
+        `).join('')}
+    `;
+
+    container.querySelectorAll('.search-suggestion-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const index = Number(item.dataset.index);
+            selectSearchSuggestion(index);
+        });
+        item.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const index = Number(item.dataset.index);
+                selectSearchSuggestion(index);
+            }
+        });
+    });
+}
+
+function hideSearchSuggestions() {
+    const container = document.getElementById('searchSuggestions');
+    if (!container) return;
+    container.style.display = 'none';
+}
+
+function selectSearchSuggestion(index) {
+    const suggestion = activeSuggestions[index];
+    if (!suggestion) return;
+    recordVisit(suggestion.url, suggestion.title);
+    window.open(suggestion.url, '_blank');
+}
+
+function highlightSuggestion(index) {
+    const container = document.getElementById('searchSuggestions');
+    if (!container) return;
+    const items = container.querySelectorAll('.search-suggestion-item');
+    items.forEach((item, itemIndex) => {
+        item.classList.toggle('active', itemIndex === index);
+    });
+}
+function updateSearchPlaceholder() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    const engine = getStoredSearchEngine();
+    searchInput.placeholder = `搜索或输入网址 · ${engine.name} · 按 Ctrl+K 或 / 聚焦`;
+}
+
+function getSearchSuggestions(query) {
+    const lowerQuery = query.toLowerCase();
+    const shortcuts = getShortcuts().map(item => ({
+        title: item.title,
+        url: item.url,
+        description: item.description || '快捷网站'
+    }));
+    const history = getVisitHistory().map(item => ({
+        title: item.title,
+        url: item.url,
+        description: `${item.count} 次访问`
+    }));
+
+    const combined = [...shortcuts, ...history];
+    const filtered = combined.filter(item => {
+        if (!query) return true;
+        return item.title.toLowerCase().includes(lowerQuery) || item.url.toLowerCase().includes(lowerQuery);
+    });
+
+    return filtered.slice(0, MAX_SEARCH_SUGGESTIONS);
+}
+
+function renderSearchSuggestions(query) {
+    const container = document.getElementById('searchSuggestions');
+    if (!container) return;
+
+    const suggestions = getSearchSuggestions(query);
+    activeSuggestions = suggestions;
+    currentSuggestionIndex = -1;
+
+    if (!suggestions.length) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+
+    container.style.display = 'block';
+    container.innerHTML = `
+        <div class="suggestion-header">匹配到 ${suggestions.length} 条推荐结果，使用 ↑↓ 选择，回车打开。</div>
+        ${suggestions.map((item, index) => `
+            <div class="search-suggestion-item" data-index="${index}" tabindex="0">
+                <div>
+                    <strong>${item.title}</strong>
+                    <div class="search-suggestion-meta">${item.description}</div>
+                </div>
+                <span class="search-suggestion-meta">${item.url}</span>
+            </div>
+        `).join('')}
+    `;
+
+    container.querySelectorAll('.search-suggestion-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const index = Number(item.dataset.index);
+            selectSearchSuggestion(index);
+        });
+        item.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const index = Number(item.dataset.index);
+                selectSearchSuggestion(index);
+            }
+        });
+    });
+}
+
+function hideSearchSuggestions() {
+    const container = document.getElementById('searchSuggestions');
+    if (!container) return;
+    container.style.display = 'none';
+}
+
+function selectSearchSuggestion(index) {
+    const suggestion = activeSuggestions[index];
+    if (!suggestion) return;
+    recordVisit(suggestion.url, suggestion.title);
+    window.open(suggestion.url, '_blank');
+}
+
+function highlightSuggestion(index) {
+    const container = document.getElementById('searchSuggestions');
+    if (!container) return;
+    const items = container.querySelectorAll('.search-suggestion-item');
+    items.forEach((item, itemIndex) => {
+        item.classList.toggle('active', itemIndex === index);
     });
 }
 
@@ -578,12 +763,9 @@ function bindGithubSyncButton() {
 function initSearch() {
     const searchForm = document.getElementById('searchForm');
     const searchInput = document.getElementById('searchInput');
+    const suggestionsContainer = document.getElementById('searchSuggestions');
 
-    searchForm.addEventListener('submit', event => {
-        event.preventDefault();
-        const query = searchInput.value.trim();
-        if (!query) return;
-
+    function performSearch(query) {
         const engine = getStoredSearchEngine();
         const isUrl = /^https?:\/\//i.test(query) || /^[^\s]+\.[^\s]+$/i.test(query);
         const targetUrl = isUrl
@@ -592,6 +774,76 @@ function initSearch() {
 
         recordVisit(targetUrl, query);
         window.open(targetUrl, '_blank');
+    }
+
+    searchForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) return;
+        performSearch(query);
+        hideSearchSuggestions();
+    });
+
+    searchInput.addEventListener('input', () => {
+        updateSearchPlaceholder();
+        renderSearchSuggestions(searchInput.value.trim());
+    });
+
+    searchInput.addEventListener('focus', () => {
+        renderSearchSuggestions(searchInput.value.trim());
+    });
+
+    searchInput.addEventListener('keydown', event => {
+        const suggestions = document.querySelectorAll('.search-suggestion-item');
+        if (event.key === 'Escape') {
+            hideSearchSuggestions();
+            return;
+        }
+
+        if (suggestions.length) {
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                currentSuggestionIndex = Math.min(currentSuggestionIndex + 1, suggestions.length - 1);
+                highlightSuggestion(currentSuggestionIndex);
+                return;
+            }
+            if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, 0);
+                highlightSuggestion(currentSuggestionIndex);
+                return;
+            }
+            if (event.key === 'Enter' && currentSuggestionIndex >= 0) {
+                event.preventDefault();
+                selectSearchSuggestion(currentSuggestionIndex);
+                hideSearchSuggestions();
+                return;
+            }
+        }
+    });
+
+    document.addEventListener('click', event => {
+        const target = event.target;
+        if (suggestionsContainer && !suggestionsContainer.contains(target) && target !== searchInput) {
+            hideSearchSuggestions();
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        const active = document.activeElement;
+        const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+        if (isTyping) return;
+
+        if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+            event.preventDefault();
+            searchInput.focus();
+            return;
+        }
+
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            searchInput.focus();
+        }
     });
 }
 
@@ -602,6 +854,11 @@ async function initPage() {
     renderHistoryCards();
     await updateLoginStatus();
     initSearch();
+
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.focus();
+    }
 
     const loginButton = document.getElementById('githubLoginButton');
     if (loginButton) {

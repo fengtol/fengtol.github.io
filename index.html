@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的主页</title>
-    <link rel="stylesheet" href="chrome-homepage.css">
+    <link rel="stylesheet" href="chrome-homepage.css?v=20260429">
 </head>
 <body>
     <div class="page-shell">
@@ -39,6 +39,8 @@
                     <input id="searchInput" class="search-input" type="search" placeholder="搜索或输入网址" autocomplete="off">
                     <button class="search-submit" type="submit">搜索</button>
                 </form>
+                <div class="search-hint" id="searchHint">按 Ctrl+K 或 / 键快速聚焦，输入网址或搜索关键词。</div>
+                <div class="search-suggestions" id="searchSuggestions"></div>
                 <div class="hint-row">
                     <span class="hint-label">快捷导航：</span>
                     <a href="https://www.google.com" target="_blank" rel="noreferrer">Google</a>
@@ -75,6 +77,6 @@
         </section>
     </div>
 
-    <script src="chrome-homepage.js"></script>
+    <script src="chrome-homepage.js?v=20260429"></script>
 </body>
 </html>
