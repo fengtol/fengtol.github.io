@@ -15,11 +15,12 @@ const STORAGE_GITHUB_TOKEN_KEY = 'chrome_homepage_github_token';
 const GITHUB_API_BASE = 'https://api.github.com';
 const MAX_SEARCH_SUGGESTIONS = 8;
 
+const BING_SEARCH_URL = 'https://cn.bing.com/search?q=';
+const BING_SUGGEST_API = 'https://api.bing.com/osjson.aspx?query=';
+const BING_BACKGROUND_API = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
+
 const SEARCH_ENGINES = [
-    { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=', icon: 'G' },
-    { id: 'bing', name: 'Bing', url: 'https://cn.bing.com/search?q=', icon: 'B' },
-    { id: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd=', icon: '百' },
-    { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=', icon: '🦆' }
+    { id: 'bing', name: 'Bing', url: BING_SEARCH_URL, icon: 'B' }
 ];
 
 const DEFAULT_SHORTCUTS = [
@@ -84,16 +85,14 @@ function getShortcuts() {
 }
 
 function getStoredSearchEngine() {
-    const saved = localStorage.getItem(STORAGE_ENGINE_KEY);
-    return SEARCH_ENGINES.find(engine => engine.id === saved) || SEARCH_ENGINES[0];
+    return SEARCH_ENGINES[0];
 }
 
 function setStoredSearchEngine(id) {
-    const engine = SEARCH_ENGINES.find(item => item.id === id);
-    if (engine) {
-        localStorage.setItem(STORAGE_ENGINE_KEY, engine.id);
-        renderSearchEngineSelector();
-    }
+    // 主页交互逻辑已固定为 Bing 搜索，当前不支持切换其他搜索引擎。
+    const engine = SEARCH_ENGINES[0];
+    localStorage.setItem(STORAGE_ENGINE_KEY, engine.id);
+    renderSearchEngineSelector();
 }
 
 function getVisitHistory() {
@@ -170,6 +169,23 @@ function renderSearchEngineSelector() {
 
     updateSearchPlaceholder();
 }
+
+async function loadBingBackground() {
+    try {
+        const response = await fetch(BING_BACKGROUND_API);
+        const data = await response.json();
+        if (data && Array.isArray(data.images) && data.images[0] && data.images[0].url) {
+            const imageUrl = `https://www.bing.com${data.images[0].url}`;
+            document.body.style.backgroundImage = `url('${imageUrl}')`;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center center';
+            document.body.style.backgroundRepeat = 'no-repeat';
+            document.body.style.backgroundAttachment = 'fixed';
+        }
+    } catch (error) {
+        console.warn('Bing 背景获取失败：', error);
+    }
+}
 function hideSearchSuggestions() {
     const container = document.getElementById('searchSuggestions');
     if (!container) return;
@@ -198,8 +214,34 @@ function updateSearchPlaceholder() {
     searchInput.placeholder = `搜索或输入网址 · ${engine.name} · 按 Ctrl+K 或 / 聚焦`;
 }
 
-function getSearchSuggestions(query) {
+async function getBingSearchSuggestions(query) {
     if (!query || !query.trim()) return [];
+
+    try {
+        const response = await fetch(`${BING_SUGGEST_API}${encodeURIComponent(query)}`);
+        const data = await response.json();
+        if (Array.isArray(data) && Array.isArray(data[1])) {
+            return data[1].slice(0, MAX_SEARCH_SUGGESTIONS).map(suggestion => ({
+                title: suggestion,
+                url: `${BING_SEARCH_URL}${encodeURIComponent(suggestion)}`,
+                description: 'Bing 推荐'
+            }));
+        }
+    } catch (error) {
+        console.warn('Bing 搜索建议获取失败：', error);
+    }
+
+    return [];
+}
+
+async function getSearchSuggestions(query) {
+    if (!query || !query.trim()) return [];
+
+    const bingSuggestions = await getBingSearchSuggestions(query);
+    if (bingSuggestions.length) {
+        return bingSuggestions;
+    }
+
     const lowerQuery = query.toLowerCase();
     const shortcuts = getShortcuts().map(item => ({
         title: item.title,
@@ -220,11 +262,11 @@ function getSearchSuggestions(query) {
     return filtered.slice(0, MAX_SEARCH_SUGGESTIONS);
 }
 
-function renderSearchSuggestions(query) {
+async function renderSearchSuggestions(query) {
     const container = document.getElementById('searchSuggestions');
     if (!container) return;
 
-    const suggestions = getSearchSuggestions(query);
+    const suggestions = await getSearchSuggestions(query);
     activeSuggestions = suggestions;
     currentSuggestionIndex = -1;
 
@@ -236,7 +278,7 @@ function renderSearchSuggestions(query) {
 
     container.style.display = 'block';
     container.innerHTML = `
-        <div class="suggestion-header">匹配到 ${suggestions.length} 条推荐结果，使用 ↑↓ 选择，回车打开。</div>
+        <div class="suggestion-header">匹配到 ${suggestions.length} 条 Bing 推荐结果，使用 ↑↓ 选择，回车打开。</div>
         ${suggestions.map((item, index) => `
             <div class="search-suggestion-item" data-index="${index}" tabindex="0">
                 <div>
@@ -712,11 +754,10 @@ function initSearch() {
     const suggestionsContainer = document.getElementById('searchSuggestions');
 
     function performSearch(query) {
-        const engine = getStoredSearchEngine();
         const isUrl = /^https?:\/\//i.test(query) || /^[^\s]+\.[^\s]+$/i.test(query);
         const targetUrl = isUrl
             ? (query.startsWith('http://') || query.startsWith('https://') ? query : `https://${query}`)
-            : `${engine.url}${encodeURIComponent(query)}`;
+            : `${BING_SEARCH_URL}${encodeURIComponent(query)}`;
 
         recordVisit(targetUrl, query);
         window.open(targetUrl, '_blank');
@@ -730,14 +771,14 @@ function initSearch() {
         hideSearchSuggestions();
     });
 
-    searchInput.addEventListener('input', () => {
+    searchInput.addEventListener('input', async () => {
         updateSearchPlaceholder();
-        renderSearchSuggestions(searchInput.value.trim());
+        await renderSearchSuggestions(searchInput.value.trim());
     });
 
-    searchInput.addEventListener('focus', () => {
+    searchInput.addEventListener('focus', async () => {
         const query = searchInput.value.trim();
-        if (query) renderSearchSuggestions(query);
+        if (query) await renderSearchSuggestions(query);
     });
 
     searchInput.addEventListener('keydown', event => {
@@ -802,6 +843,7 @@ function initSearch() {
 async function initPage() {
     currentShortcuts = loadShortcuts();
     renderSearchEngineSelector();
+    await loadBingBackground();
     renderShortcuts();
     renderHistoryCards();
     await updateLoginStatus();
