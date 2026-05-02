@@ -352,6 +352,12 @@ body {
     background: rgba(66, 133, 244, 0.08);
 }
 
+.search-engine-divider {
+    height: 1px;
+    background: rgba(34, 34, 34, 0.1);
+    margin: 8px 0;
+}
+
 .search-form {
     position: relative;
     display: grid;
@@ -393,9 +399,10 @@ body {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 14px 16px;
+    padding: 8px 12px;
     cursor: pointer;
     transition: background 0.18s ease;
+    font-size: 14px;
 }
 
 .search-suggestion-item:hover,
@@ -515,25 +522,12 @@ body {
 }
 
 .history-card-item a {
+    display: flex;
+    align-items: center;
     color: var(--text);
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
-}
-
-.history-card-item p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 12px;
-}
-
-.history-card-item .visit-meta {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 8px;
-    color: var(--muted);
-    font-size: 11px;
 }
 
 .section-title-row {
@@ -888,6 +882,77 @@ body {
 }
 
 .setting-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+/* 自定义搜索引擎对话框样式 */
+.custom-engine-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-engine-content {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: var(--shadow);
+}
+
+.custom-engine-content h3 {
+    margin: 0 0 20px 0;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.custom-engine-field {
+    margin-bottom: 16px;
+}
+
+.custom-engine-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.custom-engine-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+.custom-engine-field input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+}
+
+.custom-engine-field small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.custom-engine-actions {
     display: flex;
     gap: 10px;
     justify-content: flex-end;

@@ -12,6 +12,7 @@ const STORAGE_HISTORY_KEY = 'chrome_homepage_visit_history';
 const STORAGE_SHORTCUTS_KEY = 'chrome_homepage_shortcuts';
 const STORAGE_ISSUE_NUMBER_KEY = 'chrome_homepage_issue_number';
 const STORAGE_GITHUB_TOKEN_KEY = 'chrome_homepage_github_token';
+const STORAGE_CUSTOM_ENGINES_KEY = 'chrome_homepage_custom_engines';
 const GITHUB_API_BASE = 'https://api.github.com';
 const MAX_SEARCH_SUGGESTIONS = 8;
 
@@ -19,9 +20,15 @@ const BING_SEARCH_URL = 'https://cn.bing.com/search?q=';
 const BING_PROXY_SUGGEST_URL = '/bing-proxy?suggest=';
 const BING_PROXY_BACKGROUND_URL = '/bing-proxy?background=1';
 
-const SEARCH_ENGINES = [
-    { id: 'bing', name: 'Bing', url: BING_SEARCH_URL, icon: 'B' }
+const DEFAULT_SEARCH_ENGINES = [
+    { id: 'bing', name: 'Bing', url: BING_SEARCH_URL, icon: 'B' },
+    { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=', icon: 'G' },
+    { id: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd=', icon: '百' },
+    { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=', icon: '🦆' }
 ];
+
+let SEARCH_ENGINES = [...DEFAULT_SEARCH_ENGINES];
+
 
 const DEFAULT_SHORTCUTS = [
     { title: 'Google', url: 'https://www.google.com', description: '全球最常用搜索引擎' },
@@ -84,15 +91,91 @@ function getShortcuts() {
     return currentShortcuts;
 }
 
-function getStoredSearchEngine() {
-    return SEARCH_ENGINES[0];
+function loadCustomEngines() {
+    const raw = localStorage.getItem(STORAGE_CUSTOM_ENGINES_KEY);
+    if (!raw) return [];
+    try {
+        const data = JSON.parse(raw);
+        if (Array.isArray(data)) return data;
+    } catch {
+    }
+    return [];
+}
+
+function saveCustomEngines(engines) {
+    localStorage.setItem(STORAGE_CUSTOM_ENGINES_KEY, JSON.stringify(engines));
+}
+
+function updateSearchEngines() {
+    const customEngines = loadCustomEngines();
+    SEARCH_ENGINES = [...DEFAULT_SEARCH_ENGINES, ...customEngines];
+}
+
+function showAddCustomEngineDialog() {
+    const dialogHtml = `
+        <div class="custom-engine-dialog">
+            <div class="custom-engine-content">
+                <h3>添加自定义搜索引擎</h3>
+                <div class="custom-engine-field">
+                    <label>名称</label>
+                    <input type="text" id="customEngineName" placeholder="搜索引擎名称">
+                </div>
+                <div class="custom-engine-field">
+                    <label>URL</label>
+                    <input type="text" id="customEngineUrl" placeholder="https://example.com/search?q=%s">
+                    <small>用 %s 替换搜索关键词</small>
+                </div>
+                <div class="custom-engine-field">
+                    <label>图标</label>
+                    <input type="text" id="customEngineIcon" placeholder="图标字符或 Emoji" maxlength="2">
+                </div>
+                <div class="custom-engine-actions">
+                    <button class="secondary-btn" id="cancelCustomEngine">取消</button>
+                    <button class="primary-btn" id="saveCustomEngine">保存</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const dialog = document.createElement('div');
+    dialog.innerHTML = dialogHtml;
+    dialog.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 10000; display: flex;
+        align-items: center; justify-content: center;
+    `;
+    document.body.appendChild(dialog);
+
+    document.getElementById('saveCustomEngine').addEventListener('click', () => {
+        const name = document.getElementById('customEngineName').value.trim();
+        const url = document.getElementById('customEngineUrl').value.trim();
+        const icon = document.getElementById('customEngineIcon').value.trim() || name.charAt(0);
+
+        if (!name || !url) {
+            alert('名称和 URL 不能为空');
+            return;
+        }
+
+        const customEngines = loadCustomEngines();
+        const id = `custom_${Date.now()}`;
+        customEngines.push({ id, name, url, icon });
+        saveCustomEngines(customEngines);
+        updateSearchEngines();
+        renderSearchEngineSelector();
+        document.body.removeChild(dialog);
+    });
+
+    document.getElementById('cancelCustomEngine').addEventListener('click', () => {
+        document.body.removeChild(dialog);
+    });
 }
 
 function setStoredSearchEngine(id) {
-    // 主页交互逻辑已固定为 Bing 搜索，当前不支持切换其他搜索引擎。
-    const engine = SEARCH_ENGINES[0];
-    localStorage.setItem(STORAGE_ENGINE_KEY, engine.id);
-    renderSearchEngineSelector();
+    const engine = SEARCH_ENGINES.find(item => item.id === id);
+    if (engine) {
+        localStorage.setItem(STORAGE_ENGINE_KEY, engine.id);
+        renderSearchEngineSelector();
+    }
 }
 
 function getVisitHistory() {
@@ -146,6 +229,11 @@ function renderSearchEngineSelector() {
                     <span>${item.name}</span>
                 </div>
             `).join('')}
+            <div class="search-engine-divider"></div>
+            <div class="search-engine-option" id="addCustomEngine">
+                <span class="search-engine-icon">+</span>
+                <span>添加自定义搜索引擎</span>
+            </div>
         </div>
     `;
 
@@ -160,11 +248,19 @@ function renderSearchEngineSelector() {
     });
 
     options.forEach(option => {
-        option.addEventListener('click', event => {
-            event.stopPropagation();
-            setStoredSearchEngine(option.dataset.engine);
-            if (dropdown) dropdown.style.display = 'none';
-        });
+        if (option.id === 'addCustomEngine') {
+            option.addEventListener('click', event => {
+                event.stopPropagation();
+                showAddCustomEngineDialog();
+                if (dropdown) dropdown.style.display = 'none';
+            });
+        } else {
+            option.addEventListener('click', event => {
+                event.stopPropagation();
+                setStoredSearchEngine(option.dataset.engine);
+                if (dropdown) dropdown.style.display = 'none';
+            });
+        }
     });
 
     updateSearchPlaceholder();
@@ -285,7 +381,7 @@ async function renderSearchSuggestions(query) {
                     <strong>${item.title}</strong>
                     <div class="search-suggestion-meta">${item.description}</div>
                 </div>
-                <span class="search-suggestion-meta">${item.url}</span>
+
             </div>
         `).join('')}
     `;
@@ -624,16 +720,19 @@ function renderHistoryCards() {
         historyGrid.innerHTML = '<p style="color: var(--muted);">尚未访问任何网站，点击上方卡片即可开始记录。</p>';
         return;
     }
-    historyGrid.innerHTML = history.map(item => `
+    historyGrid.innerHTML = history.map(item => {
+        const faviconUrl = `https://www.google.com/s2/favicons?domain=${new URL(item.url).hostname}&sz=32`;
+        return `
         <div class="history-card-item">
-            <a href="${item.url}" target="_blank" rel="noreferrer">${item.title}</a>
-            <div class="visit-meta">
-                <span>${item.count} 次访问</span>
-                <span>${new Date(item.lastVisited).toLocaleString()}</span>
-            </div>
-            <p>${item.url}</p>
+            <a href="${item.url}" target="_blank" rel="noreferrer" title="${item.title}">
+                <img src="${faviconUrl}" alt="" style="width: 32px; height: 32px; border-radius: 4px; margin-right: 8px;">
+                <div>
+                    <div style="font-weight: 600; margin-bottom: 2px;">${item.title}</div>
+                    <div style="font-size: 12px; color: var(--muted);">${item.count} 次访问</div>
+                </div>
+            </a>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function parseQueryParams() {
@@ -754,10 +853,11 @@ function initSearch() {
     const suggestionsContainer = document.getElementById('searchSuggestions');
 
     function performSearch(query) {
+        const engine = getStoredSearchEngine();
         const isUrl = /^https?:\/\//i.test(query) || /^[^\s]+\.[^\s]+$/i.test(query);
         const targetUrl = isUrl
             ? (query.startsWith('http://') || query.startsWith('https://') ? query : `https://${query}`)
-            : `${BING_SEARCH_URL}${encodeURIComponent(query)}`;
+            : engine.url.replace('%s', encodeURIComponent(query));
 
         recordVisit(targetUrl, query);
         window.open(targetUrl, '_blank');
@@ -841,6 +941,7 @@ function initSearch() {
 }
 
 async function initPage() {
+    updateSearchEngines();
     currentShortcuts = loadShortcuts();
     renderSearchEngineSelector();
     await loadBingBackground();
