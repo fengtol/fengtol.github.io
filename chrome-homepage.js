@@ -410,7 +410,8 @@ function renderShortcuts() {
     const grid = document.getElementById('shortcutGrid');
     const shortcuts = getShortcuts();
     grid.innerHTML = shortcuts.map(link => {
-        const faviconUrl = `${link.url.replace(/\/$/, '')}/favicon.ico`;
+        const domain = new URL(link.url).hostname;
+        const faviconUrl = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
         return `
         <div class="shortcut-card">
             <a href="${link.url}" target="_blank" rel="noreferrer" data-title="${link.title}">
@@ -508,22 +509,22 @@ function showShortcutEditor() {
 
 function showAddShortcutDialog() {
     const dialogHtml = `
-        <div class="add-shortcut-dialog">
-            <div class="add-shortcut-content">
+        <div class="custom-engine-dialog">
+            <div class="custom-engine-content">
                 <h3>添加常用网站</h3>
-                <div class="add-shortcut-field">
+                <div class="custom-engine-field">
                     <label>网站名称</label>
                     <input type="text" id="shortcutName" placeholder="网站名称">
                 </div>
-                <div class="add-shortcut-field">
+                <div class="custom-engine-field">
                     <label>网站链接</label>
                     <input type="text" id="shortcutUrl" placeholder="https://example.com">
                 </div>
-                <div class="add-shortcut-field">
+                <div class="custom-engine-field">
                     <label>网站说明</label>
                     <input type="text" id="shortcutDesc" placeholder="简短说明">
                 </div>
-                <div class="add-shortcut-actions">
+                <div class="custom-engine-actions">
                     <button class="secondary-btn" id="cancelAddShortcut">取消</button>
                     <button class="primary-btn" id="saveAddShortcut">保存</button>
                 </div>
@@ -788,7 +789,8 @@ function renderHistoryCards() {
         return;
     }
     historyGrid.innerHTML = history.map(item => {
-        const faviconUrl = `${item.url.replace(/\/$/, '')}/favicon.ico`;
+        const domain = new URL(item.url).hostname;
+        const faviconUrl = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
         return `
         <div class="history-card-item">
             <a href="${item.url}" target="_blank" rel="noreferrer" title="${item.title}">
