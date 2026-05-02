@@ -1,7 +1,7 @@
 const CLIENT_ID = 'Ov23lifw4crbtBHZ1ZMH';
 const REDIRECT_URI = window.location.origin + '/callback.html';
 const AUTH_URL = 'https://github.com/login/oauth/authorize';
-const TOKEN_EXCHANGE_URL = '/exchange-token'; // 改为你的 Cloudflare Pages 后端路径，例如 /api/exchange-token
+const TOKEN_EXCHANGE_URL = '/exchange-token'; // Cloudflare Pages 后端函数路径
 const SCOPES = ['read:user', 'user:email', 'repo'];
 const GITHUB_REPO_OWNER = 'fengtol';
 const GITHUB_REPO_NAME = 'fengtol.github.io';
@@ -16,8 +16,8 @@ const GITHUB_API_BASE = 'https://api.github.com';
 const MAX_SEARCH_SUGGESTIONS = 8;
 
 const BING_SEARCH_URL = 'https://cn.bing.com/search?q=';
-const BING_SUGGEST_API = 'https://api.bing.com/osjson.aspx?query=';
-const BING_BACKGROUND_API = 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN';
+const BING_PROXY_SUGGEST_URL = '/bing-proxy?suggest=';
+const BING_PROXY_BACKGROUND_URL = '/bing-proxy?background=1';
 
 const SEARCH_ENGINES = [
     { id: 'bing', name: 'Bing', url: BING_SEARCH_URL, icon: 'B' }
@@ -172,7 +172,7 @@ function renderSearchEngineSelector() {
 
 async function loadBingBackground() {
     try {
-        const response = await fetch(BING_BACKGROUND_API);
+        const response = await fetch(BING_PROXY_BACKGROUND_URL);
         const data = await response.json();
         if (data && Array.isArray(data.images) && data.images[0] && data.images[0].url) {
             const imageUrl = `https://www.bing.com${data.images[0].url}`;
@@ -218,7 +218,7 @@ async function getBingSearchSuggestions(query) {
     if (!query || !query.trim()) return [];
 
     try {
-        const response = await fetch(`${BING_SUGGEST_API}${encodeURIComponent(query)}`);
+        const response = await fetch(`${BING_PROXY_SUGGEST_URL}${encodeURIComponent(query)}`);
         const data = await response.json();
         if (Array.isArray(data) && Array.isArray(data[1])) {
             return data[1].slice(0, MAX_SEARCH_SUGGESTIONS).map(suggestion => ({
