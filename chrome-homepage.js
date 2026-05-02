@@ -178,6 +178,11 @@ function setStoredSearchEngine(id) {
     }
 }
 
+function getStoredSearchEngine() {
+    const saved = localStorage.getItem(STORAGE_ENGINE_KEY);
+    return SEARCH_ENGINES.find(engine => engine.id === saved) || SEARCH_ENGINES[0];
+}
+
 function getVisitHistory() {
     const raw = localStorage.getItem(STORAGE_HISTORY_KEY);
     if (!raw) return [];
