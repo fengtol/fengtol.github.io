@@ -726,15 +726,15 @@ function renderHistoryCards() {
         return;
     }
     historyGrid.innerHTML = history.map(item => {
-        const faviconUrl = `https://www.google.com/s2/favicons?domain=${new URL(item.url).hostname}&sz=32`;
+        const faviconUrl = `https://www.google.com/s2/favicons?domain=${new URL(item.url).hostname}&sz=64`;
         return `
         <div class="history-card-item">
             <a href="${item.url}" target="_blank" rel="noreferrer" title="${item.title}">
-                <img src="${faviconUrl}" alt="" style="width: 32px; height: 32px; border-radius: 4px; margin-right: 8px;">
-                <div>
-                    <div style="font-weight: 600; margin-bottom: 2px;">${item.title}</div>
-                    <div style="font-size: 12px; color: var(--muted);">${item.count} 次访问</div>
+                <div class="history-icon">
+                    <img src="${faviconUrl}" alt="" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyIiB5PSIzNCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPk5vPC90ZXh0Pgo8L3N2Zz4='">
                 </div>
+                <div class="history-title">${item.title}</div>
+                <div class="history-meta">${item.count} 次</div>
             </a>
         </div>
     `}).join('');
