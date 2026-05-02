@@ -409,12 +409,18 @@ async function renderSearchSuggestions(query) {
 function renderShortcuts() {
     const grid = document.getElementById('shortcutGrid');
     const shortcuts = getShortcuts();
-    grid.innerHTML = shortcuts.map(link => `
+    grid.innerHTML = shortcuts.map(link => {
+        const faviconUrl = `${link.url.replace(/\/$/, '')}/favicon.ico`;
+        return `
         <div class="shortcut-card">
-            <a href="${link.url}" target="_blank" rel="noreferrer" data-title="${link.title}">${link.title}</a>
-            <p>${link.description}</p>
+            <a href="${link.url}" target="_blank" rel="noreferrer" data-title="${link.title}">
+                <div class="shortcut-icon">
+                    <img src="${faviconUrl}" alt="" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyIiB5PSIzNCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPk5vPC90ZXh0Pgo8L3N2Zz4='">
+                </div>
+                <div class="shortcut-title">${link.title}</div>
+            </a>
         </div>
-    `).join('');
+    `}).join('');
     grid.querySelectorAll('a').forEach(anchor => {
         anchor.addEventListener('click', event => {
             recordVisit(anchor.href, anchor.dataset.title || anchor.textContent);
@@ -498,6 +504,62 @@ function showShortcutEditor() {
     const container = document.getElementById('shortcutEditor');
     container.style.display = 'block';
     renderShortcutEditor();
+}
+
+function showAddShortcutDialog() {
+    const dialogHtml = `
+        <div class="add-shortcut-dialog">
+            <div class="add-shortcut-content">
+                <h3>添加常用网站</h3>
+                <div class="add-shortcut-field">
+                    <label>网站名称</label>
+                    <input type="text" id="shortcutName" placeholder="网站名称">
+                </div>
+                <div class="add-shortcut-field">
+                    <label>网站链接</label>
+                    <input type="text" id="shortcutUrl" placeholder="https://example.com">
+                </div>
+                <div class="add-shortcut-field">
+                    <label>网站说明</label>
+                    <input type="text" id="shortcutDesc" placeholder="简短说明">
+                </div>
+                <div class="add-shortcut-actions">
+                    <button class="secondary-btn" id="cancelAddShortcut">取消</button>
+                    <button class="primary-btn" id="saveAddShortcut">保存</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const dialog = document.createElement('div');
+    dialog.innerHTML = dialogHtml;
+    dialog.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 10000; display: flex;
+        align-items: center; justify-content: center;
+    `;
+    document.body.appendChild(dialog);
+
+    document.getElementById('saveAddShortcut').addEventListener('click', () => {
+        const name = document.getElementById('shortcutName').value.trim();
+        const url = document.getElementById('shortcutUrl').value.trim();
+        const desc = document.getElementById('shortcutDesc').value.trim();
+
+        if (!name || !url) {
+            alert('名称和链接不能为空');
+            return;
+        }
+
+        const shortcuts = getShortcuts();
+        shortcuts.push({ title: name, url: url, description: desc });
+        saveShortcuts(shortcuts);
+        renderShortcuts();
+        document.body.removeChild(dialog);
+    });
+
+    document.getElementById('cancelAddShortcut').addEventListener('click', () => {
+        document.body.removeChild(dialog);
+    });
 }
 
 // GitHub Issue 同步相关函数
@@ -726,7 +788,7 @@ function renderHistoryCards() {
         return;
     }
     historyGrid.innerHTML = history.map(item => {
-        const faviconUrl = `https://www.google.com/s2/favicons?domain=${new URL(item.url).hostname}&sz=64`;
+        const faviconUrl = `${item.url.replace(/\/$/, '')}/favicon.ico`;
         return `
         <div class="history-card-item">
             <a href="${item.url}" target="_blank" rel="noreferrer" title="${item.title}">
@@ -980,12 +1042,7 @@ async function initPage() {
     await loadShortcutsFromIssue();
 
     document.getElementById('editShortcutsButton').addEventListener('click', showShortcutEditor);
-    document.getElementById('addShortcutButton').addEventListener('click', () => {
-        currentShortcuts = getShortcuts();
-        showShortcutEditor();
-        currentShortcuts.push({ title: '', url: '', description: '' });
-        renderShortcutEditor();
-    });
+    document.getElementById('addShortcutButton').addEventListener('click', showAddShortcutDialog);
 
     document.addEventListener('click', () => {
         const dropdown = document.getElementById('searchEngineDropdown');
