@@ -8,7 +8,7 @@ export async function onRequest(context) {
     }
 
     // 使用Google的favicon服务
-    const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}`;
+    const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`;
 
     try {
         const response = await fetch(faviconUrl, {
