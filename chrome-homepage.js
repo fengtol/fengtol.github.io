@@ -197,6 +197,76 @@ function getStoredSearchEngine() {
     return SEARCH_ENGINES.find(engine => engine.id === saved) || SEARCH_ENGINES[0];
 }
 
+function setStoredSearchEngine(engineId) {
+    const engine = SEARCH_ENGINES.find(item => item.id === engineId);
+    if (!engine) return;
+    localStorage.setItem(STORAGE_ENGINE_KEY, engine.id);
+    renderSearchEngineSelector();
+}
+
+function showAddCustomEngineDialog() {
+    const dialogHtml = `
+        <div class="custom-engine-dialog">
+            <div class="custom-engine-content">
+                <h3>添加自定义搜索引擎</h3>
+                <div class="custom-engine-field">
+                    <label>名称</label>
+                    <input type="text" id="newEngineName" placeholder="搜索引擎名称">
+                </div>
+                <div class="custom-engine-field">
+                    <label>URL</label>
+                    <input type="text" id="newEngineUrl" placeholder="https://example.com/search?q=%s">
+                    <small>用 %s 替换搜索关键词</small>
+                </div>
+                <div class="custom-engine-field">
+                    <label>图标</label>
+                    <input type="text" id="newEngineIcon" placeholder="图标字符或 Emoji" maxlength="2">
+                </div>
+                <div class="custom-engine-actions">
+                    <button class="secondary-btn" id="cancelAddEngine">取消</button>
+                    <button class="primary-btn" id="saveAddEngine">保存</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const dialog = document.createElement('div');
+    dialog.innerHTML = dialogHtml;
+    dialog.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); z-index: 10000; display: flex;
+        align-items: center; justify-content: center;
+    `;
+    document.body.appendChild(dialog);
+
+    document.getElementById('saveAddEngine').addEventListener('click', () => {
+        const name = document.getElementById('newEngineName').value.trim();
+        const url = document.getElementById('newEngineUrl').value.trim();
+        const icon = document.getElementById('newEngineIcon').value.trim() || name.charAt(0);
+
+        if (!name || !url) {
+            alert('名称和 URL 不能为空');
+            return;
+        }
+
+        const customEngines = loadCustomEngines();
+        customEngines.push({
+            id: `custom_${Date.now()}`,
+            name,
+            url,
+            icon
+        });
+        saveCustomEngines(customEngines);
+        updateSearchEngines();
+        renderSearchEngineSelector();
+        document.body.removeChild(dialog);
+    });
+
+    document.getElementById('cancelAddEngine').addEventListener('click', () => {
+        document.body.removeChild(dialog);
+    });
+}
+
 function getVisitHistory() {
     const raw = localStorage.getItem(STORAGE_HISTORY_KEY);
     if (!raw) return [];
@@ -298,10 +368,12 @@ function renderSearchEngineSelector() {
                 showAddCustomEngineDialog();
                 if (dropdown) dropdown.style.display = 'none';
             });
-        } else if (!editBtn && !deleteBtn) {
+        } else {
             option.addEventListener('click', event => {
                 event.stopPropagation();
-                setStoredSearchEngine(option.dataset.engine);
+                if (option.dataset.engine) {
+                    setStoredSearchEngine(option.dataset.engine);
+                }
                 if (dropdown) dropdown.style.display = 'none';
             });
         }
