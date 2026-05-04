@@ -13,6 +13,7 @@ const STORAGE_SHORTCUTS_KEY = 'chrome_homepage_shortcuts';
 const STORAGE_ISSUE_NUMBER_KEY = 'chrome_homepage_issue_number';
 const STORAGE_GITHUB_TOKEN_KEY = 'chrome_homepage_github_token';
 const STORAGE_CUSTOM_ENGINES_KEY = 'chrome_homepage_custom_engines';
+const STORAGE_BING_BACKGROUND_KEY = 'chrome_homepage_bing_background';
 const GITHUB_API_BASE = 'https://api.github.com';
 const MAX_SEARCH_SUGGESTIONS = 8;
 
@@ -271,7 +272,30 @@ function renderSearchEngineSelector() {
     updateSearchPlaceholder();
 }
 
+const STORAGE_BING_BACKGROUND_KEY = 'chrome_homepage_bing_background';
+
 async function loadBingBackground() {
+    const cacheKey = STORAGE_BING_BACKGROUND_KEY;
+    const cached = localStorage.getItem(cacheKey);
+    const now = Date.now();
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24小时
+
+    if (cached) {
+        try {
+            const { url, timestamp } = JSON.parse(cached);
+            if (now - timestamp < CACHE_DURATION) {
+                document.body.style.backgroundImage = `url('${url}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center center';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                document.body.style.backgroundAttachment = 'fixed';
+                return;
+            }
+        } catch (e) {
+            // 忽略解析错误
+        }
+    }
+
     try {
         const response = await fetch(BING_PROXY_BACKGROUND_URL);
         const data = await response.json();
@@ -282,6 +306,9 @@ async function loadBingBackground() {
             document.body.style.backgroundPosition = 'center center';
             document.body.style.backgroundRepeat = 'no-repeat';
             document.body.style.backgroundAttachment = 'fixed';
+
+            // 缓存URL
+            localStorage.setItem(cacheKey, JSON.stringify({ url: imageUrl, timestamp: now }));
         }
     } catch (error) {
         console.warn('Bing 背景获取失败：', error);
@@ -411,12 +438,12 @@ function renderShortcuts() {
     const shortcuts = getShortcuts();
     grid.innerHTML = shortcuts.map(link => {
         const domain = new URL(link.url).hostname;
-        const faviconUrl = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+        const faviconUrl = `/favicon-proxy?domain=${domain}`;
         return `
         <div class="shortcut-card">
             <a href="${link.url}" target="_blank" rel="noreferrer" data-title="${link.title}">
                 <div class="shortcut-icon">
-                    <img src="${faviconUrl}" alt="" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyIiB5PSIzNCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPk5vPC90ZXh0Pgo8L3N2Zz4='">
+                    <img src="${faviconUrl}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyIiB5PSIzNCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPk5vPC90ZXh0Pgo8L3N2Zz4='">
                 </div>
                 <div class="shortcut-title">${link.title}</div>
             </a>
@@ -790,12 +817,12 @@ function renderHistoryCards() {
     }
     historyGrid.innerHTML = history.map(item => {
         const domain = new URL(item.url).hostname;
-        const faviconUrl = `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+        const faviconUrl = `/favicon-proxy?domain=${domain}`;
         return `
         <div class="history-card-item">
             <a href="${item.url}" target="_blank" rel="noreferrer" title="${item.title}">
                 <div class="history-icon">
-                    <img src="${faviconUrl}" alt="" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyIiB5PSIzNCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPk5vPC90ZXh0Pgo8L3N2Zz4='">
+                    <img src="${faviconUrl}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyIiB5PSIzNCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOUI5QkE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPk5vPC90ZXh0Pgo8L3N2Zz4='">
                 </div>
                 <div class="history-title">${item.title}</div>
                 <div class="history-meta">${item.count} 次</div>

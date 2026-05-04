@@ -46,7 +46,7 @@ export async function onRequest(context) {
             status: response.status,
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'no-store'
+                'Cache-Control': 'public, max-age=86400' // 缓存24小时
             }
         });
     }
