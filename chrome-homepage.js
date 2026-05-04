@@ -112,27 +112,31 @@ function updateSearchEngines() {
     SEARCH_ENGINES = [...DEFAULT_SEARCH_ENGINES, ...customEngines];
 }
 
-function showAddCustomEngineDialog() {
+function showEditCustomEngineDialog(id) {
+    const customEngines = loadCustomEngines();
+    const engine = customEngines.find(e => e.id === id);
+    if (!engine) return;
+
     const dialogHtml = `
         <div class="custom-engine-dialog">
             <div class="custom-engine-content">
-                <h3>添加自定义搜索引擎</h3>
+                <h3>编辑自定义搜索引擎</h3>
                 <div class="custom-engine-field">
                     <label>名称</label>
-                    <input type="text" id="customEngineName" placeholder="搜索引擎名称">
+                    <input type="text" id="editEngineName" placeholder="搜索引擎名称" value="${engine.name}">
                 </div>
                 <div class="custom-engine-field">
                     <label>URL</label>
-                    <input type="text" id="customEngineUrl" placeholder="https://example.com/search?q=%s">
+                    <input type="text" id="editEngineUrl" placeholder="https://example.com/search?q=%s" value="${engine.url}">
                     <small>用 %s 替换搜索关键词</small>
                 </div>
                 <div class="custom-engine-field">
                     <label>图标</label>
-                    <input type="text" id="customEngineIcon" placeholder="图标字符或 Emoji" maxlength="2">
+                    <input type="text" id="editEngineIcon" placeholder="图标字符或 Emoji" maxlength="2" value="${engine.icon}">
                 </div>
                 <div class="custom-engine-actions">
-                    <button class="secondary-btn" id="cancelCustomEngine">取消</button>
-                    <button class="primary-btn" id="saveCustomEngine">保存</button>
+                    <button class="secondary-btn" id="cancelEditEngine">取消</button>
+                    <button class="primary-btn" id="saveEditEngine">保存</button>
                 </div>
             </div>
         </div>
@@ -147,10 +151,10 @@ function showAddCustomEngineDialog() {
     `;
     document.body.appendChild(dialog);
 
-    document.getElementById('saveCustomEngine').addEventListener('click', () => {
-        const name = document.getElementById('customEngineName').value.trim();
-        const url = document.getElementById('customEngineUrl').value.trim();
-        const icon = document.getElementById('customEngineIcon').value.trim() || name.charAt(0);
+    document.getElementById('saveEditEngine').addEventListener('click', () => {
+        const name = document.getElementById('editEngineName').value.trim();
+        const url = document.getElementById('editEngineUrl').value.trim();
+        const icon = document.getElementById('editEngineIcon').value.trim() || name.charAt(0);
 
         if (!name || !url) {
             alert('名称和 URL 不能为空');
@@ -158,23 +162,32 @@ function showAddCustomEngineDialog() {
         }
 
         const customEngines = loadCustomEngines();
-        const id = `custom_${Date.now()}`;
-        customEngines.push({ id, name, url, icon });
-        saveCustomEngines(customEngines);
-        updateSearchEngines();
-        renderSearchEngineSelector();
+        const index = customEngines.findIndex(e => e.id === id);
+        if (index !== -1) {
+            customEngines[index] = { ...customEngines[index], name, url, icon };
+            saveCustomEngines(customEngines);
+            updateSearchEngines();
+            renderSearchEngineSelector();
+        }
         document.body.removeChild(dialog);
     });
 
-    document.getElementById('cancelCustomEngine').addEventListener('click', () => {
+    document.getElementById('cancelEditEngine').addEventListener('click', () => {
         document.body.removeChild(dialog);
     });
 }
 
-function setStoredSearchEngine(id) {
-    const engine = SEARCH_ENGINES.find(item => item.id === id);
-    if (engine) {
-        localStorage.setItem(STORAGE_ENGINE_KEY, engine.id);
+function deleteCustomEngine(id) {
+    const customEngines = loadCustomEngines();
+    const filtered = customEngines.filter(engine => engine.id !== id);
+    saveCustomEngines(filtered);
+    updateSearchEngines();
+    renderSearchEngineSelector();
+
+    // 如果当前选择的引擎被删除了，重置为默认
+    const current = getStoredSearchEngine();
+    if (current.id === id) {
+        localStorage.removeItem(STORAGE_ENGINE_KEY);
         renderSearchEngineSelector();
     }
 }
@@ -233,6 +246,10 @@ function renderSearchEngineSelector() {
                 <div class="search-engine-option" data-engine="${item.id}">
                     <span class="search-engine-icon">${item.icon}</span>
                     <span>${item.name}</span>
+                    ${item.id.startsWith('custom_') ? `
+                        <span class="engine-action edit-engine" data-engine="${item.id}" title="编辑">✏️</span>
+                        <span class="engine-action delete-engine" data-engine="${item.id}" title="删除">🗑️</span>
+                    ` : ''}
                 </div>
             `).join('')}
             <div class="search-engine-divider"></div>
@@ -254,13 +271,34 @@ function renderSearchEngineSelector() {
     });
 
     options.forEach(option => {
+        const editBtn = option.querySelector('.edit-engine');
+        const deleteBtn = option.querySelector('.delete-engine');
+
+        if (editBtn) {
+            editBtn.addEventListener('click', event => {
+                event.stopPropagation();
+                showEditCustomEngineDialog(event.target.dataset.engine);
+                if (dropdown) dropdown.style.display = 'none';
+            });
+        }
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', event => {
+                event.stopPropagation();
+                if (confirm('确定要删除这个搜索引擎吗？')) {
+                    deleteCustomEngine(event.target.dataset.engine);
+                }
+                if (dropdown) dropdown.style.display = 'none';
+            });
+        }
+
         if (option.id === 'addCustomEngine') {
             option.addEventListener('click', event => {
                 event.stopPropagation();
                 showAddCustomEngineDialog();
                 if (dropdown) dropdown.style.display = 'none';
             });
-        } else {
+        } else if (!editBtn && !deleteBtn) {
             option.addEventListener('click', event => {
                 event.stopPropagation();
                 setStoredSearchEngine(option.dataset.engine);
@@ -960,9 +998,12 @@ function initSearch() {
 
     searchForm.addEventListener('submit', event => {
         event.preventDefault();
-        const query = searchInput.value.trim();
-        if (!query) return;
-        performSearch(query);
+        if (activeSuggestions.length > 0 && currentSuggestionIndex >= 0) {
+            selectSearchSuggestion(currentSuggestionIndex);
+        } else {
+            const query = searchInput.value.trim();
+            if (query) performSearch(query);
+        }
         hideSearchSuggestions();
     });
 
@@ -996,9 +1037,15 @@ function initSearch() {
                 highlightSuggestion(currentSuggestionIndex);
                 return;
             }
-            if (event.key === 'Enter' && currentSuggestionIndex >= 0) {
+            if (event.key === 'Enter') {
                 event.preventDefault();
-                selectSearchSuggestion(currentSuggestionIndex);
+                if (activeSuggestions.length > 0) {
+                    const index = currentSuggestionIndex >= 0 ? currentSuggestionIndex : 0;
+                    selectSearchSuggestion(index);
+                } else {
+                    const query = searchInput.value.trim();
+                    if (query) performSearch(query);
+                }
                 hideSearchSuggestions();
                 return;
             }
