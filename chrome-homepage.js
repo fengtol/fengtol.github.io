@@ -272,7 +272,6 @@ function renderSearchEngineSelector() {
     updateSearchPlaceholder();
 }
 
-const STORAGE_BING_BACKGROUND_KEY = 'chrome_homepage_bing_background';
 
 async function loadBingBackground() {
     const cacheKey = STORAGE_BING_BACKGROUND_KEY;
