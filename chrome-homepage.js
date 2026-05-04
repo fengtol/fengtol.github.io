@@ -18,14 +18,13 @@ const GITHUB_API_BASE = 'https://api.github.com';
 const MAX_SEARCH_SUGGESTIONS = 8;
 
 const BING_SEARCH_URL = 'https://cn.bing.com/search?q=';
-const BING_PROXY_SUGGEST_URL = '/bing-proxy?suggest=';
 const BING_PROXY_BACKGROUND_URL = '/bing-proxy?background=1';
 
 const DEFAULT_SEARCH_ENGINES = [
-    { id: 'bing', name: 'Bing', url: BING_SEARCH_URL, icon: 'B' },
-    { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=', icon: 'G' },
-    { id: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd=', icon: '百' },
-    { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=', icon: '🦆' }
+    { id: 'bing', name: 'Bing', url: 'https://cn.bing.com/search?q=%s', icon: 'B' },
+    { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=%s', icon: 'G' },
+    { id: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd=%s', icon: '百' },
+    { id: 'duckduckgo', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=%s', icon: '🦆' }
 ];
 
 let SEARCH_ENGINES = [...DEFAULT_SEARCH_ENGINES];
@@ -451,33 +450,8 @@ function updateSearchPlaceholder() {
     searchInput.placeholder = `搜索或输入网址 · ${engine.name} · 按 Ctrl+K 或 / 聚焦`;
 }
 
-async function getBingSearchSuggestions(query) {
-    if (!query || !query.trim()) return [];
-
-    try {
-        const response = await fetch(`${BING_PROXY_SUGGEST_URL}${encodeURIComponent(query)}`);
-        const data = await response.json();
-        if (Array.isArray(data) && Array.isArray(data[1])) {
-            return data[1].slice(0, MAX_SEARCH_SUGGESTIONS).map(suggestion => ({
-                title: suggestion,
-                url: `${BING_SEARCH_URL}${encodeURIComponent(suggestion)}`,
-                description: 'Bing 推荐'
-            }));
-        }
-    } catch (error) {
-        console.warn('Bing 搜索建议获取失败：', error);
-    }
-
-    return [];
-}
-
 async function getSearchSuggestions(query) {
     if (!query || !query.trim()) return [];
-
-    const bingSuggestions = await getBingSearchSuggestions(query);
-    if (bingSuggestions.length) {
-        return bingSuggestions;
-    }
 
     const lowerQuery = query.toLowerCase();
     const shortcuts = getShortcuts().map(item => ({
@@ -515,7 +489,7 @@ async function renderSearchSuggestions(query) {
 
     container.style.display = 'block';
     container.innerHTML = `
-        <div class="suggestion-header">匹配到 ${suggestions.length} 条 Bing 推荐结果，使用 ↑↓ 选择，回车打开。</div>
+        <div class="suggestion-header">匹配到 ${suggestions.length} 条搜索建议，使用 ↑↓ 选择，回车打开。</div>
         ${suggestions.map((item, index) => `
             <div class="search-suggestion-item" data-index="${index}" tabindex="0">
                 <div>
@@ -1060,9 +1034,15 @@ function initSearch() {
     function performSearch(query) {
         const engine = getStoredSearchEngine();
         const isUrl = /^https?:\/\//i.test(query) || /^[^\s]+\.[^\s]+$/i.test(query);
-        const targetUrl = isUrl
-            ? (query.startsWith('http://') || query.startsWith('https://') ? query : `https://${query}`)
-            : engine.url.replace('%s', encodeURIComponent(query));
+        let targetUrl;
+
+        if (isUrl) {
+            targetUrl = query.startsWith('http://') || query.startsWith('https://') ? query : `https://${query}`;
+        } else if (engine.url.includes('%s')) {
+            targetUrl = engine.url.replace('%s', encodeURIComponent(query));
+        } else {
+            targetUrl = `${engine.url}${encodeURIComponent(query)}`;
+        }
 
         recordVisit(targetUrl, query);
         window.open(targetUrl, '_blank');
